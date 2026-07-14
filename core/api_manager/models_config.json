@@ -1,0 +1,15 @@
+{
+    "ALLOWED_MODELS": [
+        "gemini-3.5-flash", 
+        "gemini-3.1-flash-lite", 
+        "gemini-2.5-flash-lite", 
+        "gemini-2.5-flash"
+    ],
+    "MODEL_LIMITS": {
+        "gemini-3.5-flash": {"max_rpm": 5, "max_tpm": 250000, "max_rpd": 18, "priority": 10},
+        "gemini-3.1-flash-lite": {"max_rpm": 15, "max_tpm": 250000, "max_rpd": 500, "priority": 5},
+        "gemini-2.5-flash-lite": {"max_rpm": 10, "max_tpm": 250000, "max_rpd": 20, "priority": 2},
+        "gemini-2.5-flash": {"max_rpm": 5, "max_tpm": 250000, "max_rpd": 20, "priority": 1},
+        "gemma-4-31b": {"max_rpm": 15, "max_tpm": 1000000, "max_rpd": 1500, "priority": 0}
+    }
+}

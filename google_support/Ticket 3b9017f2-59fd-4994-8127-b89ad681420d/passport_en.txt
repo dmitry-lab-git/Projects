@@ -1,0 +1,37 @@
+================================================================================
+TECHNICAL REPORT: RESOLUTION OF API QUOTA EXCEEDANCE INCIDENT (429)
+================================================================================
+
+PROJECT INFORMATION
+--------------------------------------------------------------------------------
+Project ID: gen-lang-client-0530951458
+Project Number: 961569970133
+Document ID: 3b9017f2-59fd-4994-8127-b89ad681420d
+Time Interval: 2026-07-04 14:36:09 — 14:37:05 UTC (56 seconds)
+Incident: 100 requests with 429 (RESOURCE_EXHAUSTED) error code
+
+ROOT CAUSE
+--------------------------------------------------------------------------------
+Critical API rate limit (RPM) exceedance caused by lack of global 
+synchronization and the accumulation of "stuck" database transactions. 
+The failure resulted from the loss of protective mechanisms during 
+a code update.
+
+MITIGATION MEASURES (PROACTIVE GATEKEEPER MODEL)
+--------------------------------------------------------------------------------
+1. GLOBAL RATE LIMITER (GLOBAL_RPM_LIMIT = 1): Implemented strict 
+   synchronization for all API calls via the database to eliminate request 
+   bursts.
+2. SANITARY CLEANUP: Automated forced cleanup of "zombie" requests and 
+   corrupted transactions upon script initialization.
+3. PULSE MONITORING: Implemented execution blocking upon detection of 
+   critical write density, preventing system overload.
+4. CIRCUIT BREAKER: In the event of a 429 error, the model is automatically 
+   isolated for 1 hour, protecting the resource from further exhaustion.
+
+SUMMARY
+--------------------------------------------------------------------------------
+The system is now self-regulating. The occurrence of 429 errors is 
+architecturally prevented. Monitoring confirms stable operations within 
+API limits.
+================================================================================

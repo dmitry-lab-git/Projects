@@ -1,0 +1,30 @@
+1. Model Gemini 2.5 Flash: RPM 5/5 limit exceeded.
+
+2. Model Gemini 3.5 Flash: RPM 5/5 limit exceeded.
+
+Access restrictions to these models have been imposed.
+
+The cause of these violations was code debugging and initial interaction with the API. The required delay times during requests in loops were not accounted for.
+
+Implemented fixes:
+
+Introduced a 60-second delay in the loop after an API error.
+
+Introduced a 25-second delay after successful processing.
+
+Testing is conducted under manual supervision. During debugging and in the event of errors, the process is deactivated manually. Implementation of control over text limits within prompts is in progress, as well as setting a maximum number of retries for API requests in case of errors.
+
+These updates were tested using the gemini-3.1-flash-lite model. Logs confirmed 30 successful API interactions without server-side errors.
+
+Recent status history (Logs):
+2026-06-23 06:50:47 | error | 404 NOT_FOUND (Model name mismatch)
+2026-06-23 06:54:50 | error | 429 RESOURCE_EXHAUSTED (Quota limit reached)
+2026-06-23 07:00:30 | error | 429 RESOURCE_EXHAUSTED (Retry delay triggered)
+2026-06-23 07:05:11 | success | Process recovered
+2026-06-23 07:14:50 | success | Stable performance
+... (subsequent requests successful)
+
+Project number: 961569970133
+Contact email: d3698627@gmail.com
+
+Thank you for the service. The results and quality are of a high standard.

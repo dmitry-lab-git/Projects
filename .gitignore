@@ -1,0 +1,44 @@
+# Игнорировать защищенную папку со всеми секретами и ключами
+secure_folder/
+
+# Игнорировать любые файлы .env во всех подпапках
+.env
+.env.*
+
+# Системные файлы и кэш
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Логи и временные файлы
+*.log
+*.tmp
+
+# Python (если есть бэкенд на Python)
+__pycache__/
+*.py[cod]
+venv/
+.env/
+
+# Node.js / Web (если есть фронтенд или PWA)
+node_modules/
+dist/
+build/
+.npm/
+
+# Локальные дампы и бэкапы СУБД (запрет фиксации SQL-экспортов)
+db_dump_files/
+*.sql
+*.bak
+
+# Исторические исходные данные и FLW-пакеты (запрет фиксации CSV/ZIP архивов с iPad)
+Raw Data/
+*.zip
+*.csv
+
+# Специфичный кэш фреймворка Reflex (PWA)
+.web/
+assets/py/
+
+# Документы и чеки
+Ledger/raw_data_ipad/docs/

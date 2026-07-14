@@ -1,0 +1,14 @@
+Subject: API Error Report (429 Resource Exhausted) — Project ID: 961569970133
+
+Project ID: 961569970133.
+
+2026-06-24 09:29:49.847 429 RESOURCE_EXHAUSTED
+2026-06-24 09:29:50.103 429 RESOURCE_EXHAUSTED
+2026-06-24 09:29:50.364 429 RESOURCE_EXHAUSTED
+2026-06-24 09:29:50.622 429 RESOURCE_EXHAUSTED
+
+A violation has been detected while interacting with the Gemini 3.1 Flash Lite API model. The 250.83K TPM limit has been exceeded.
+The logs indicate that request queue delays are not being managed.
+A decision has been made to implement a separate module, api_utils.py, to incorporate tactical delays (backoff) and prompt size control.
+
+d3698627@gmail.com

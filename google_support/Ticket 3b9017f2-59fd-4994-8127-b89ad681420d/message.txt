@@ -1,0 +1,41 @@
+Subject: Technical Incident Report: API Quota Exceedance (429) — Project ID: gen-lang-client-0530951458
+
+To the Google Support Team,
+
+This report documents a transient incident involving "429 RESOURCE_EXHAUSTED" errors and details the corrective measures implemented to ensure strict adherence to API rate limits.
+
+Incident Summary:
+
+Project ID: gen-lang-client-0530951458
+
+Project Number: 961569970133
+
+Time Interval: 2026-07-04 14:36:09.657 — 14:37:05.688 (UTC)
+
+Duration: 56.03 seconds
+
+Total Affected Requests: 100
+
+Calculated Load: ~107.08 RPM
+
+Root Cause Analysis:
+A recent code deployment introduced a regression in rate-limiting and session management logic. This resulted in unsynchronized parallel request bursts and the accumulation of "zombie" (pending) transactions in the local database. Analysis confirmed a discrepancy between local state tracking (RPD_Usage metrics) and actual API quota availability, leading to attempts to perform requests when the quota was already exhausted.
+
+Corrective Actions:
+The following architectural improvements have been implemented to enforce compliance with API rate limits:
+
+Global Rate Limiter: Implemented a system-wide GLOBAL_RPM_LIMIT = 1 for all API calls to ensure synchronization across all model instances.
+
+Database Sanitation: Integrated an automated process that purges timed-out or invalid "pending" transactions upon system initialization to maintain accurate state tracking.
+
+Pulse Monitoring (Overload Control): Added real-time monitoring of write density. System execution is now automatically throttled if an overload is detected.
+
+Circuit Breaker: Implemented a fail-safe mechanism where a model is automatically isolated for one hour following a 429 response to prevent further resource exhaustion.
+
+Current Status:
+The system is now self-regulating. The implemented measures architecturally prevent future breaches of rate limits. This documentation is provided for record-keeping and transparency regarding project activity.
+
+Regards,
+
+Technical Administration Team
+(Project: gen-lang-client-0530951458)
