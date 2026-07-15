@@ -42,3 +42,6 @@ assets/py/
 
 # Документы и чеки
 Ledger/raw_data_ipad/docs/
+
+# rclone
+Ledger/raw_data_ipad/iPad_import/rclone-v1.74.3-windows-amd64/

@@ -1,10 +1,13 @@
 # SQL-запросы для модуля обработки чеков
 QUERIES = {
     # Работа с source_files
+    "GET_FILE_ID_BY_PATH": """
+        SELECT id FROM public.source_files WHERE file_path = %s
+    """,
     "INSERT_SOURCE_FILE": """
         INSERT INTO public.source_files 
-        (id, file_name, file_path, file_size, upload_date, created_at, status_id) 
-        VALUES (%s, %s, %s, %s, CURRENT_DATE, CURRENT_TIMESTAMP, %s)
+        (id, file_name, file_path, file_size, file_hash, upload_date, created_at, status_id) 
+        VALUES (%s, %s, %s, %s, %s, CURRENT_DATE, CURRENT_TIMESTAMP, %s)
     """,
     "GET_UNPROCESSED_PHOTOS": """
         SELECT id, file_path 
