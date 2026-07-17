@@ -10,7 +10,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Импортируем вашу логику
 from main import secure_api_call
-from config import get_db_connection 
+from core.db_utils.db_access import get_db_connection 
 
 def run_isolated_test():
     print("--- ИНИЦИАЛИЗАЦИЯ ТЕСТА ---")

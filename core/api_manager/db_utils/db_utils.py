@@ -63,12 +63,12 @@ def api_requests_log_check_health(conn, max_requests=1) -> bool:
         logging.error(f"[ОШИБКА] Ошибка проверки счетчика запросов: {e}")
         return False
 
-def check_system_overload(conn, threshold=20):
+def check_system_overload(conn, threshold=60):
     # Глобальная проверка без привязки к ID
     count = db_fetch_val(conn, "CHECK_LOAD", default=0) 
     
     if count >= threshold:
-        logging.critical(f"[ОПАСНОСТЬ] Шторм: {count} запросов за 5 сек.")
+        logging.critical(f"[ОПАСНОСТЬ] Шторм: {count} запросов за 1 минуту.")
         return True
     return False
 
@@ -108,10 +108,10 @@ def analyze_historical_health(conn, model_name):
 # --- Логирование БД ---
 def log_request_start(conn, source_uuid, prompt_text, model_name, tokens, target_name="technical", file_meta=None):
     # Проверка на дубликат
-    existing_id = db_fetch_val(conn, "CHECK_DUPLICATE", (source_uuid,))
-    if existing_id:
-        logging.warning(f"[Duplicate] Запрос с source_uuid {source_uuid} уже существует (ID: {existing_id})")
-        return existing_id
+    #existing_id = db_fetch_val(conn, "CHECK_DUPLICATE", (source_uuid,))
+    #if existing_id:
+    #    logging.warning(f"[Duplicate] Запрос с source_uuid {source_uuid} уже существует (ID: {existing_id})")
+    #    return existing_id
     
     # 1. Гарантируем наличие родительской записи
     db_execute(conn, "ENSURE_SOURCE_EXTRACTION", (source_uuid, target_name))

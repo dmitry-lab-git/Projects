@@ -124,11 +124,10 @@ def validate_system_state(conn, client, model_name, prompt_text, file_path=None)
 
     # 6. Защита базы данных (Детектор шторма на уровне СУБД)
     import random
-    if check_system_overload(conn, threshold=20):
-        wait_time = random.uniform(5, 10) 
-        logging.warning(f"Перегрузка СУБД! Локальная пауза {wait_time:.2f} сек.")
+    if check_system_overload(conn, threshold=100): # Подняли порог
+        wait_time = 10 
+        logging.warning(f"Высокая нагрузка на СУБД. Ожидание {wait_time} сек.")
         time.sleep(wait_time)
-        return None
 
     # Эти строки должны быть ВНЕ if, но ВНУТРИ функции (отступ 4 пробела):
     from api_manager.api_utils.api_utils import get_google_quota_reset_timestamp

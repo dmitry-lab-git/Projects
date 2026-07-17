@@ -1,0 +1,54 @@
+ТРЕБУЕМАЯ СТРУКТУРА JSON (КОНТРАКТ):
+{
+  "file_meta": {
+    "file_hash": "string (оставь пустым или null, заполняется на стороне клиента)",
+    "scanned_at": "string (ISO 8601, время обработки)",
+    "total_documents_found": "integer (количество чеков на фото)"
+  },
+  "extracted_documents": [
+    {
+      "document_index": "integer (порядковый номер чека на фото, начиная с 1)", 
+      "legal_entity": {
+        "legal_entity_name": "string (Название ИП, ТОО, магазина)",
+        "legal_entity_address": "string (Полный физический адрес торговой точки)",
+        "legal_entity_bin_iin": "string (12 цифр БИН или ИИН)"
+      },
+      "transaction": {
+        "operation_date": "string (YYYY-MM-DD)",
+        "operation_time": "string (HH:MM:SS)",
+        "currency": "string (Например, KZT)",
+        "payment_method": "string (cash / card / mixed)",
+        "subtotal_amount": "number (Сумма до налогов и скидок)",
+        "discount_amount": "number (Сумма скидки)",
+        "vat_amount": "number (Сумма НДС, если выделена)",
+        "total_amount": "number (Итоговая сумма чека)",
+        "received_amount": "number (Внесенная сумма)",
+        "change_amount": "number (Сдача)"
+      },
+      "items": [
+        {
+          "position": "integer (Порядковый номер позиции)",
+          "name": "string (Наименование товара/услуги)",
+          "quantity": "number (Количество/вес)",
+          "unit": "string (шт, кг, л, упак)",
+          "price_per_unit": "number (Цена за единицу)",
+          "total_price": "number (Общая стоимость позиции)",
+          "vat_rate": "number (Ставка НДС в процентах, например 12, если указана)"
+        }
+      ],
+      "fiscal_data": {
+        "receipt_number": "string (Порядковый номер чека)",
+        "shift_number": "string (Номер смены)",
+        "kkm_number": "string (Заводской номер ККМ)",
+        "fiscal_sign": "string (Фискальный признак, ФП)",
+        "has_qr": "boolean (Есть ли QR-код на чеке)",
+        "ofd_url": "string (URL из QR-кода, если удалось распознать)"
+      }
+    }
+  ],
+  "ai_diagnostics": {
+    "parsing_warnings": [
+      "string (Опиши любые аномалии: неверная дата на чеке, нечитаемый текст, несовпадение итоговой суммы с позициями. Если проблем нет - пустой массив [])"
+    ]
+  }
+}

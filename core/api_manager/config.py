@@ -6,6 +6,7 @@ import psycopg2
 from google import genai
 from dotenv import load_dotenv
 from rich.traceback import install
+from core.db_utils.db_access import get_db_connection
 
 GLOBAL_RPM_LIMIT = None
 GLOBAL_RPD_LIMIT = None
@@ -81,16 +82,6 @@ def setup_error_handling():
             "psycopg2",       
         ],
         locals_hide_sunder=["DB_PASS", "password", "secret"]  
-    )
-
-def get_db_connection():
-    # traceback: exclude
-    return psycopg2.connect(
-        dbname=os.getenv("DB_NAME"), 
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASS"), 
-        host=os.getenv("DB_HOST"), 
-        port=os.getenv("DB_PORT")
     )
 
 setup_error_handling()

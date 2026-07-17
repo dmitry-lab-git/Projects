@@ -45,9 +45,9 @@ QUERIES = {
         AND created_at < (NOW() AT TIME ZONE 'UTC' - INTERVAL %s);
     """,
     "CHECK_LOAD": """
-        SELECT COUNT(id) 
-        FROM processing.api_requests_log 
-        WHERE created_at >= NOW() AT TIME ZONE 'UTC' - INTERVAL '5 seconds'
+    SELECT COUNT(id) 
+    FROM processing.api_requests_log 
+    WHERE created_at >= NOW() AT TIME ZONE 'UTC' - INTERVAL '1 minute'
     """,
     "ENSURE_SOURCE_EXTRACTION": """
         INSERT INTO processing.source_extractions (id, target_name)
