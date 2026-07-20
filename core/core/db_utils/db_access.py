@@ -1,9 +1,39 @@
-# Data Access Layer
 import psycopg2
-from api_manager.db_utils.db_queries import QUERIES
+import os
+import time
 import logging
+from dotenv import load_dotenv
+
+class QueryRegistry:
+    _queries = {}
+
+    @classmethod
+    def register(cls, queries: dict):
+        cls._queries.update(queries)
+
+    @classmethod
+    def get(cls, key: str):
+        if key not in cls._queries:
+            raise KeyError(f"Запрос '{key}' не найден в реестре!")
+        return cls._queries[key]
 
 _STATUS_CACHE = {}
+def get_db_connection():
+    # traceback: exclude
+    print(f"DEBUG: Connecting to DB: {os.getenv('DB_NAME')} as {os.getenv('DB_USER')} at {os.getenv('DB_HOST')}")
+    return psycopg2.connect(
+        dbname=os.getenv("DB_NAME"), 
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"), 
+        host=os.getenv("DB_HOST"), 
+        port=os.getenv("DB_PORT")
+    )
+    # Отладочный блок
+    cur = conn.cursor()
+    cur.execute("SELECT current_user, current_database(), current_schema();")
+    u, db, schema = cur.fetchone()
+    print(f"DEBUG: Подключились как: {u} к БД: {db}, схема по умолчанию: {schema}")
+    cur.close()
 
 def _validate_connection(conn):
     """Проверяет состояние соединения с паузой при ошибке."""
@@ -16,7 +46,7 @@ def _validate_connection(conn):
 def db_get_stats(conn, query_key, params):
     """Возвращает данные как словарь для удобного доступа по именам."""
     conn = _validate_connection(conn)
-    query = QUERIES.get(query_key)
+    query = QueryRegistry.get(query_key)
     with conn.cursor() as cur:
         cur.execute(query, params)
         colnames = [desc[0] for desc in cur.description]
@@ -38,33 +68,25 @@ def load_status_cache(conn):
 
 
 def get_status_id(conn, entity_type, code):
-    """
-    Быстро и надежно возвращает UUID статуса напрямую из базы данных.
-    Код строго в ВЕРХНЕМ РЕГИСТРЕ.
-    """
     conn = _validate_connection(conn)
     query = "SELECT id FROM dicts.dict_statuses WHERE entity_type = %s AND code = %s"
+    
     with conn.cursor() as cur:
         cur.execute(query, (entity_type, code))
         row = cur.fetchone()
-
-        if not row:
-            raise RuntimeError(f"Критическая ошибка: Статус '{code}' для entity '{entity_type}' не найден в таблице dicts.dict_statuses!")
-
-        return row[0]
-    with conn.cursor() as cur:
-        cur.execute(query, (code,))
-        row = cur.fetchone()
         
-        if not row:
-            raise RuntimeError(f"Критическая ошибка: Статус '{code}' не найден в таблице dicts.dict_statuses!")
-            
-        return row[0]
+    # Добавим вывод для отладки
+    if not row:
+        print(f"DEBUG: Статус не найден для: entity_type={entity_type}, code={code}")
+        raise RuntimeError(f"Статус '{code}' для '{entity_type}' не найден!")
+        
+    print(f"DEBUG: Найден ID для {code}: {row[0]}")
+    return row[0]
 
 def db_execute_update(conn, query_key, params):
     """Выполняет UPDATE/DELETE."""
     conn = _validate_connection(conn)
-    query = QUERIES.get(query_key)
+    query = QueryRegistry.get(query_key)
     try:
         with conn.cursor() as cur:
             cur.execute(query, params)
@@ -76,7 +98,7 @@ def db_execute_update(conn, query_key, params):
 def db_execute(conn, query_key, params):
     """Выполняет запрос INSERT или сложный INSERT/UPDATE, возвращая результат."""
     conn = _validate_connection(conn)
-    query = QUERIES.get(query_key)
+    query = QueryRegistry.get(query_key)
     try:
         with conn.cursor() as cur:
             cur.execute(query, params)
@@ -96,7 +118,7 @@ def db_execute(conn, query_key, params):
 def db_fetch_val(conn, query_key, params=None, default=None):
     """Выполняет запрос и возвращает единственное значение."""
     conn = _validate_connection(conn)
-    query = QUERIES.get(query_key)
+    query = QueryRegistry.get(query_key)
     try:
         with conn.cursor() as cur:
             cur.execute(query, params)
@@ -105,3 +127,34 @@ def db_fetch_val(conn, query_key, params=None, default=None):
     except Exception as e:
         logging.error(f"DB Error: {e}")
         return default # Позволяет легко реализовать логику fail-closed
+
+def db_fetch_row(conn, query_key, params=None, key=None):
+    """
+    Выполняет запрос, забирает одну строку (fetchone) и возвращает:
+    - Если передан key: конкретное значение этой колонки (строку, число и т.д.).
+    - Если key равен None: всю строку в виде словаря {имя_колонки: значение}.
+    """
+    conn = _validate_connection(conn)
+    query = QueryRegistry.get(query_key)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(query, params)
+            if not cur.description:
+                return None
+            
+            row = cur.fetchone()
+            if not row:
+                return None
+            
+            # Собираем словарь: сопоставляем имена колонок из SELECT с их значениями
+            columns = [desc[0] for desc in cur.description]
+            row_dict = dict(zip(columns, row))
+            
+            # Если попросили конкретное поле — отдаем его, иначе весь словарь
+            if key is not None:
+                return row_dict.get(key)
+            return row_dict
+            
+    except Exception as e:
+        logging.error(f"DB Error (fetch_row): {e}")
+        raise

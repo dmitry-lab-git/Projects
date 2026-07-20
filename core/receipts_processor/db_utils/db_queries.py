@@ -25,12 +25,9 @@ QUERIES = {
     """,
     "UPDATE_FILE_STATUS": """
         UPDATE processing.source_files
-        SET status_id = (
-            SELECT id FROM dicts.dict_statuses 
-            WHERE code = %s AND entity_type = 'source_files'
-        )
+        SET status_id = %s
         WHERE id = %s
-    """,
+        """,
     "CHECK_FINISHED_BY_HASH": "SELECT id FROM processing.source_files WHERE file_hash = %s AND status_id = (SELECT id FROM dicts.dict_statuses WHERE code = 'FINISHED')",
     "GET_STATUS_ID": """
         SELECT id FROM dicts.dict_statuses 
@@ -41,14 +38,14 @@ QUERIES = {
         VALUES (%s, %s, %s, %s, %s)
     """,
     "INSERT_RECEIPT": """
-        INSERT INTO processing.receipts
-        (
-            id, source_file_id, receipt_index_on_file, status_id, created_at, 
-            raw_payload, account_id, legal_entity_id, merchant_id, contragent_id, 
-            amount, currency_id, operation_date, operation_time, description
-        )
-        VALUES 
-        (%s, %s, %s, %s, CURRENT_TIMESTAMP, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    INSERT INTO processing.receipts
+    (
+        id, source_file_id, receipt_index_on_file, status_id, created_at, 
+        raw_payload, legal_entity_id, amount, currency_id, operation_date, 
+        operation_time, description
+    )
+    VALUES 
+    (%s, %s, %s, %s, CURRENT_TIMESTAMP, %s, %s, %s, %s, %s, %s, %s)
     """,
     "GET_CURRENCY_BY_CODE": """
         SELECT id FROM dicts.dicts_currencies WHERE currency_id = %s

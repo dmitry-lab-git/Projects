@@ -1,6 +1,14 @@
+# history | grep pip
+
 psycopg2-binary
 google-genai
 python-dotenv
 rich
 google-generativeai
 dos2unix
+python-magic
+Pillow
+pypdf
+# easyocr — библиотека для оптического распознавания текста (OCR) на базе нейросетей.
+# opencv   -python / opencv-python-headless — библиотека компьютерного зрения (используется для предварительной # обработки изображений перед OCR).
+# torch / torchvision  — фреймворк глубокого обучения (PyTorch, установленный в CPU-версии), который служит # вычислительным ядром для easyocr.

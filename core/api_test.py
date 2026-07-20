@@ -7,25 +7,28 @@ from google import genai
 import uuid
 
 # Путь к вашему реальному .env
-env_path = "/home/fujitsu-u745/Projects/secure_folder/api_manager/.env"
-load_dotenv(env_path)
 
 sys.path.append(os.getcwd())
+
+from core.db_utils.db_access import get_db_connection
 from api_manager import secure_api_call
 
 def run_test(use_file=False):
+    load_dotenv("/home/fujitsu-u745/Projects/secure_folder/api_manager/.env")
     
     client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
-    db_url = os.getenv("DATABASE_URL")
-    if not db_url:
-        print("[ERROR] Переменная DATABASE_URL не найдена в .env")
+    if not os.getenv("DB_NAME"):
+        print("[ERROR] Параметры БД не загружены из .env!")
         return
 
     print("\n=== ИНИЦИАЛИЗАЦИЯ ИНТЕГРАЦИОННОГО ТЕСТА ===")
     
     try:
         # Подключение через URL (psycopg2 умеет парсить его напрямую)
-        conn = psycopg2.connect(db_url)
+        conn = get_db_connection()
+        with conn.cursor() as cur:
+            cur.execute("SELECT current_database(), current_schema();")
+            print(f"DEBUG: Подключились к базе: {cur.fetchone()}")
         print("[1/3] Соединение с БД установлено.")
     except Exception as e:
         print(f"[ERROR] Не удалось подключиться к БД: {e}")
