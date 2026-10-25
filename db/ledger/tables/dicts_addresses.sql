@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict bZupykcpvsKmKmCCN19tUBPhlpUGANwFtPrjD4EkDqiYeQLuuqEqvqo7qpBhfMq
+\restrict HGgBgZNzg1CyxcPzH0aTqm8hXUOI4LD7YzIdbzGrsayEZSflikW51SUpy0jFUCC
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -91,5 +91,5 @@ GRANT SELECT,USAGE ON SEQUENCE dicts.addresses_code_seq TO reflex_app_user;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict bZupykcpvsKmKmCCN19tUBPhlpUGANwFtPrjD4EkDqiYeQLuuqEqvqo7qpBhfMq
+\unrestrict HGgBgZNzg1CyxcPzH0aTqm8hXUOI4LD7YzIdbzGrsayEZSflikW51SUpy0jFUCC
 

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict jSqFUSKd4oO2kt3WQjElIwAUdzlOBEmV045b14cFSG8yPo4fPvpypMSZOpO85kY
+\restrict LgJFHdTNWiK53LXOX9mxroYfcCtfGDTeDwRV6fRHw6gTn8MrSPJMqd4mkJZd1cH
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -84,5 +84,5 @@ CREATE INDEX idx_product_registry_project_cost ON texere.product_registry USING 
 -- PostgreSQL database dump complete
 --
 
-\unrestrict jSqFUSKd4oO2kt3WQjElIwAUdzlOBEmV045b14cFSG8yPo4fPvpypMSZOpO85kY
+\unrestrict LgJFHdTNWiK53LXOX9mxroYfcCtfGDTeDwRV6fRHw6gTn8MrSPJMqd4mkJZd1cH
 

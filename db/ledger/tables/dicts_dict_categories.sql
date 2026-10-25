@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict VtbUEOEbdX0CkxNFuDv1FvqaISgBMFrka3WXBJD3ObSfaAjCVbdwjnJSjR3oNFJ
+\restrict USCWDOe1vNfIVL7NvocH2qptfQHrSYpH4nrcd9XWdNa0MdTtucKB9w3pWDj3yzE
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -102,5 +102,5 @@ GRANT SELECT,USAGE ON SEQUENCE dicts.dict_category_id_seq TO reflex_app_user;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict VtbUEOEbdX0CkxNFuDv1FvqaISgBMFrka3WXBJD3ObSfaAjCVbdwjnJSjR3oNFJ
+\unrestrict USCWDOe1vNfIVL7NvocH2qptfQHrSYpH4nrcd9XWdNa0MdTtucKB9w3pWDj3yzE
 

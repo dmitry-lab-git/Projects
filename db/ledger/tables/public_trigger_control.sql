@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 1KhzLW2WUBEqsf2BgtC2vn933jlKf9ndqMfywLP4vj0gD2gy5mDObH4oMhtDkLt
+\restrict 8yc6wzhkMddaojjJ9DJfTkedLfHHLpBrYlJk4TZGxXbN3doykpH7khD1w8M8DI1
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -54,5 +54,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.trigger_control TO antigravity
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 1KhzLW2WUBEqsf2BgtC2vn933jlKf9ndqMfywLP4vj0gD2gy5mDObH4oMhtDkLt
+\unrestrict 8yc6wzhkMddaojjJ9DJfTkedLfHHLpBrYlJk4TZGxXbN3doykpH7khD1w8M8DI1
 

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict dasnNTJlVskS4fW40gFz6lMNyXdXHPcdBubd5WqZgjjlOCmsBgfPkjlzRJSyoay
+\restrict JvaXs4zWtgG4gkcnOxDWP1HTOXY0o3Ayf8OGlwBU4R4CjIP2N8ZpLqyxOBRmxbZ
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -1307,5 +1307,5 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA projects GRANT SELECT,INSER
 -- PostgreSQL database dump complete
 --
 
-\unrestrict dasnNTJlVskS4fW40gFz6lMNyXdXHPcdBubd5WqZgjjlOCmsBgfPkjlzRJSyoay
+\unrestrict JvaXs4zWtgG4gkcnOxDWP1HTOXY0o3Ayf8OGlwBU4R4CjIP2N8ZpLqyxOBRmxbZ
 

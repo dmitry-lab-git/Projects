@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 5Y18vQ5G1hnrRaNvecw4ik3FVvcEsw0radDiJOkglR7hYhGK72UD3oLzfneSXxd
+\restrict UUpleNhFtaetlked6Te8BxVLDaqVaoexLz1SMLlOg5dp4mODF1alpvBRtvAKkZ7
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -75,5 +75,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE audit.staging_transactions_20260701_2
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 5Y18vQ5G1hnrRaNvecw4ik3FVvcEsw0radDiJOkglR7hYhGK72UD3oLzfneSXxd
+\unrestrict UUpleNhFtaetlked6Te8BxVLDaqVaoexLz1SMLlOg5dp4mODF1alpvBRtvAKkZ7
 

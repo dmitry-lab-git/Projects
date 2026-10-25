@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 8GgqjEvkME4lF84UCdnXteNDcEIp0GxvO2Ke8kgTd3qlXnRGp8Mqhqe2oTE2Hd5
+\restrict vTL0kd2rEhaGmuL0m113HaQhgvZgDzJRrCVuis5wQCRb9f67dZrtKn3kTITFpKl
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -65,5 +65,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.acc_balance_snapshot_register 
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 8GgqjEvkME4lF84UCdnXteNDcEIp0GxvO2Ke8kgTd3qlXnRGp8Mqhqe2oTE2Hd5
+\unrestrict vTL0kd2rEhaGmuL0m113HaQhgvZgDzJRrCVuis5wQCRb9f67dZrtKn3kTITFpKl
 

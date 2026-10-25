@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict X3sgexw8lJZYA1bjSMNDXLdrQtDV2uzh5ELuSbenJKcCYguyAIiPqc703uqMnR4
+\restrict lLrfKSFc6cL1vdGzlNCqRnYYDUViDs9u7qLEDdEW5AbrrxnoUWpj4qi07hd3Us0
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -115,5 +115,5 @@ GRANT SELECT,USAGE ON SEQUENCE dicts.merchants_code_seq TO reflex_app_user;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict X3sgexw8lJZYA1bjSMNDXLdrQtDV2uzh5ELuSbenJKcCYguyAIiPqc703uqMnR4
+\unrestrict lLrfKSFc6cL1vdGzlNCqRnYYDUViDs9u7qLEDdEW5AbrrxnoUWpj4qi07hd3Us0
 

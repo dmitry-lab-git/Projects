@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 0CvhMeZaJs9VvQ4TUQuM8ee0PypsvYfS1a1pc6PD1wOU8MtplXQyPt8pwIe3tT2
+\restrict JF7kpRfCflWtuSjBmVNt3zVtFh764s98q9DJ8hd9Mh8VZmcKcfy13Oa3vHwycXf
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -70,5 +70,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE dicts.dicts_currencies TO reflex_app_
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 0CvhMeZaJs9VvQ4TUQuM8ee0PypsvYfS1a1pc6PD1wOU8MtplXQyPt8pwIe3tT2
+\unrestrict JF7kpRfCflWtuSjBmVNt3zVtFh764s98q9DJ8hd9Mh8VZmcKcfy13Oa3vHwycXf
 

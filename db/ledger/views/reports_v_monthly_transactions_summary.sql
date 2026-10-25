@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict eqGL1KMeSrZUhzHKgpdn6FjybnYjFZDRy8IJyYNLywzH348KD4eIzRxqzWyOpeK
+\restrict TPoQBKIKMUX0nF9eoUgfXfOkDtEY2zRNk5lBp0eRSf1Rg1bB1YpwY32LfsbHVco
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -55,5 +55,5 @@ GRANT SELECT ON TABLE reports.v_monthly_transactions_summary TO reflex_app_user;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict eqGL1KMeSrZUhzHKgpdn6FjybnYjFZDRy8IJyYNLywzH348KD4eIzRxqzWyOpeK
+\unrestrict TPoQBKIKMUX0nF9eoUgfXfOkDtEY2zRNk5lBp0eRSf1Rg1bB1YpwY32LfsbHVco
 

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict Idhe1pbwdFukq5uSiGTSIYbq48D8PWheITf1dMjNqNkPAaBOCtnzRCUJg1f92Rb
+\restrict bBq8d3Cqn8qj1bcL5KFrAeH0w38j0U6bE51pKd1R5HYvc4zcC9mPuvbYSfJhYYU
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -43,5 +43,5 @@ CREATE TABLE archive.dict_categories_20260629_205647 (
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Idhe1pbwdFukq5uSiGTSIYbq48D8PWheITf1dMjNqNkPAaBOCtnzRCUJg1f92Rb
+\unrestrict bBq8d3Cqn8qj1bcL5KFrAeH0w38j0U6bE51pKd1R5HYvc4zcC9mPuvbYSfJhYYU
 

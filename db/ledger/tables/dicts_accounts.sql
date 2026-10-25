@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 8AZ477Qlx7c6XdDpuVjs2fFk0VDoKnNdyl41NVqGCF7PuP30JVnKkSCXRiSaFcC
+\restrict QRqi18m2WRlbKYa8XBbrh9LecyeL4i8I2Etee0dyeSGdeoheWIfD8NjtRFFmVI9
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -76,5 +76,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE dicts.accounts TO reflex_app_user;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 8AZ477Qlx7c6XdDpuVjs2fFk0VDoKnNdyl41NVqGCF7PuP30JVnKkSCXRiSaFcC
+\unrestrict QRqi18m2WRlbKYa8XBbrh9LecyeL4i8I2Etee0dyeSGdeoheWIfD8NjtRFFmVI9
 

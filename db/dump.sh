@@ -8,7 +8,6 @@ for DB in ledger household; do
   mkdir -p $DIR/tables $DIR/views $DIR/functions
   echo "[$DATE] Dumping $DB..."
 
-  # ПОЛНАЯ ОЧИСТКА старых дампов
   rm -f $DIR/tables/*.sql $DIR/views/*.sql $DIR/functions/*.sql
 
   FILTER="AND tablename NOT LIKE 'archive_%' AND tablename NOT LIKE '%_backup%'"
@@ -43,11 +42,40 @@ for DB in ledger household; do
   echo " -> tables:$(ls $DIR/tables|wc -l) views:$(ls $DIR/views|wc -l) functions:$(ls $DIR/functions|wc -l)"
 done
 
+# === VERSIONING BEAUTIFUL ===
+VER_FILE=~/Projects/Ledger/VERSIONING.md
+mkdir -p ~/Projects/Ledger
+echo "# Ledger — История версионирования" > "$VER_FILE"
+echo "" >> "$VER_FILE"
+echo "> Источник истины: development.versions + development.version_updates • Автообновляется через dump.sh — $DATE" >> "$VER_FILE"
+echo "" >> "$VER_FILE"
+echo "## Эпохи (VER)" >> "$VER_FILE"
+echo "" >> "$VER_FILE"
+sudo -u postgres psql -d ledger -At -c "
+SELECT '**' || version_id || ' / ' || version_code || ' — ' || version_name || ' — ' || registration_date || '**' || E'\n' || description || E'\n' || 'Стек: ' || programming_stack || ' | Устройство: ' || dev_device || E'\n'
+FROM development.versions ORDER BY registration_date
+" >> "$VER_FILE"
+echo "" >> "$VER_FILE"
+echo "---" >> "$VER_FILE"
+echo "" >> "$VER_FILE"
+echo "## Хроника изменений (UVR)" >> "$VER_FILE"
+echo "" >> "$VER_FILE"
+sudo -u postgres psql -d ledger -At -c "
+SELECT '* **' || update_version_id || ' — ' || registration_date || ' — ' || update_version_name || '**' || E'\n  ' || description || E'\n  Файлы: ' || COALESCE(affected_objects,'') || E'\n'
+FROM development.version_updates ORDER BY registration_date, code
+" >> "$VER_FILE"
+echo "" >> "$VER_FILE"
+echo "---" >> "$VER_FILE"
+VC=$(sudo -u postgres psql -d ledger -At -c "SELECT count(*) FROM development.versions")
+UC=$(sudo -u postgres psql -d ledger -At -c "SELECT count(*) FROM development.version_updates")
+echo "_Last sync: $DATE — $VC versions, $UC updates_" >> "$VER_FILE"
+echo " -> VERSIONING: $(wc -l < "$VER_FILE") lines"
+
 cd ~/Projects
-git add db/
+git add db/ Ledger/VERSIONING.md
 git status --short | head -50
-if ! git diff --cached --quiet -- db/; then
-  git commit -m "auto: db dump $DATE clean" -- db/
+if ! git diff --cached --quiet -- db/ Ledger/VERSIONING.md; then
+  git commit -m "auto: db dump $DATE clean + versioning" -- db/ Ledger/VERSIONING.md
   git push
 else
   echo "No changes"

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict PmfpGHbnfeg0GrcxDvCC1zRfo79ToI0vOHANev7FqdOcVJylmR1jqMG6JZHWn7E
+\restrict Kca2ndMbJStA99hrf87iYOaBHGDQfzMFnzfeDEXiAIrUxEsqlhNFDhGjO97wbfD
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -81,5 +81,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.contragent_precedents TO antig
 -- PostgreSQL database dump complete
 --
 
-\unrestrict PmfpGHbnfeg0GrcxDvCC1zRfo79ToI0vOHANev7FqdOcVJylmR1jqMG6JZHWn7E
+\unrestrict Kca2ndMbJStA99hrf87iYOaBHGDQfzMFnzfeDEXiAIrUxEsqlhNFDhGjO97wbfD
 

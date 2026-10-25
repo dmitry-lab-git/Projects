@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict ndoqN3wMc86oW5C8ckCyW8cvFo1KBeLR0AlpTcEvlmZyH9kgYOkV4e5u82D7W4i
+\restrict cX53sQJT690kh3XOi5RbOOCevUjO6r0ao2I0cm56AF9qeomcURwpEQb8LeTgOAi
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -54,5 +54,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE medicine.observations TO reflex_app_u
 -- PostgreSQL database dump complete
 --
 
-\unrestrict ndoqN3wMc86oW5C8ckCyW8cvFo1KBeLR0AlpTcEvlmZyH9kgYOkV4e5u82D7W4i
+\unrestrict cX53sQJT690kh3XOi5RbOOCevUjO6r0ao2I0cm56AF9qeomcURwpEQb8LeTgOAi
 

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict h1CAflVUrm0KSizFrqjLhhpGufuFVP8a4l0m4Hkjbjpwgl7nDpCV7mpq1JxiBE0
+\restrict wXTI13tfNPPPMSYE5KguWzMI1CnPLvlvbtMZtf71xEJ0ehhWVl8hpOTeSLO46EW
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -95,5 +95,5 @@ CREATE INDEX idx_patterns_inv_tx_link ON texere.patterns_inventory USING btree (
 -- PostgreSQL database dump complete
 --
 
-\unrestrict h1CAflVUrm0KSizFrqjLhhpGufuFVP8a4l0m4Hkjbjpwgl7nDpCV7mpq1JxiBE0
+\unrestrict wXTI13tfNPPPMSYE5KguWzMI1CnPLvlvbtMZtf71xEJ0ehhWVl8hpOTeSLO46EW
 

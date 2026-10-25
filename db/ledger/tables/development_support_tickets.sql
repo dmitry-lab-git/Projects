@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict YxJkdpc09DI7joA5DxBloZwObaQF9jVozyv1SfRnq077T2Xsh5UKvlz2BXamfXG
+\restrict DBAmEhoYGNTKoGFkRZurYyPc9BGlwWscMHV7ZFptTnbSBql5KzYPV3K1M60y7Sl
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -79,5 +79,5 @@ ALTER TABLE ONLY development.support_tickets
 -- PostgreSQL database dump complete
 --
 
-\unrestrict YxJkdpc09DI7joA5DxBloZwObaQF9jVozyv1SfRnq077T2Xsh5UKvlz2BXamfXG
+\unrestrict DBAmEhoYGNTKoGFkRZurYyPc9BGlwWscMHV7ZFptTnbSBql5KzYPV3K1M60y7Sl
 

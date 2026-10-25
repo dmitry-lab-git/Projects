@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict HfdgSFgbIBwh92h3Cna50VIjVhv1U7wz7MzfovmLK5vXtiPM4GeaX8NDmhUn8cb
+\restrict LXv1ZFIXa62mLBmY9JUGGbhke0fKQktD4CCyGhtXGqXgtVsgSKU3E7mPighKCLx
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -70,5 +70,5 @@ CREATE VIEW texere.v_product_registry_analytics AS
 -- PostgreSQL database dump complete
 --
 
-\unrestrict HfdgSFgbIBwh92h3Cna50VIjVhv1U7wz7MzfovmLK5vXtiPM4GeaX8NDmhUn8cb
+\unrestrict LXv1ZFIXa62mLBmY9JUGGbhke0fKQktD4CCyGhtXGqXgtVsgSKU3E7mPighKCLx
 

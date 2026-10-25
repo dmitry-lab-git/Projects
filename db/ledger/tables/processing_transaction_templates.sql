@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict NUm4L5PBId0eRC7FJFqbCIR4FOPlhP8J92YaYyvymKyw5zTNTioWJpbdStMvu1L
+\restrict Lbhfel95Ks15R9fLDvD0NYFJhMOJTeAH69KHYCYGTrMZFGAo0rJjcFtffa9UQBT
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -157,5 +157,5 @@ GRANT ALL ON TABLE processing.transaction_templates TO receipt_processor_svc;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict NUm4L5PBId0eRC7FJFqbCIR4FOPlhP8J92YaYyvymKyw5zTNTioWJpbdStMvu1L
+\unrestrict Lbhfel95Ks15R9fLDvD0NYFJhMOJTeAH69KHYCYGTrMZFGAo0rJjcFtffa9UQBT
 

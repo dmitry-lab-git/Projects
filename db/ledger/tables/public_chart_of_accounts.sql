@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict hYCVGzBOjnsGm3SF2IsZ8o25WZFgauCldAsGTU9xdojSl9iryCnodVCa82DWiRX
+\restrict fwnzamVEf75gXRhC7R8wfDyvjANcUEihv46ltK1sRcckS0zVXK6ze34WXGjZ9MA
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -84,5 +84,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.chart_of_accounts TO antigravi
 -- PostgreSQL database dump complete
 --
 
-\unrestrict hYCVGzBOjnsGm3SF2IsZ8o25WZFgauCldAsGTU9xdojSl9iryCnodVCa82DWiRX
+\unrestrict fwnzamVEf75gXRhC7R8wfDyvjANcUEihv46ltK1sRcckS0zVXK6ze34WXGjZ9MA
 

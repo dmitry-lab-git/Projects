@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict KXs2KFXBLsEGWv4bjMCZ5QaAAu9Cv7XRjoQpb5oiKhi625XQnsrfkiV8u1xDjEi
+\restrict tzQJFWPZeb867Sp30eQgfohxACSOi5ChV78oFlLU1OeoRjb5wvQHaBsYtrptYbk
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -120,5 +120,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.transactions TO antigravity;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict KXs2KFXBLsEGWv4bjMCZ5QaAAu9Cv7XRjoQpb5oiKhi625XQnsrfkiV8u1xDjEi
+\unrestrict tzQJFWPZeb867Sp30eQgfohxACSOi5ChV78oFlLU1OeoRjb5wvQHaBsYtrptYbk
 

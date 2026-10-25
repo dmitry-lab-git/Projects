@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict yGvgrhcgjJBLyVn0rp7ZamSKWAtkFIjPKgYxzlJabhudlO8jo4BvlFnfyBnWKm9
+\restrict PDF03HAISBzFDerepvXrxsr20OfJGcTKaPcEzODfTQf2SYiTP3GFAR9b8EjycIf
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -49,5 +49,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE audit.audit_sessions TO reflex_app_us
 -- PostgreSQL database dump complete
 --
 
-\unrestrict yGvgrhcgjJBLyVn0rp7ZamSKWAtkFIjPKgYxzlJabhudlO8jo4BvlFnfyBnWKm9
+\unrestrict PDF03HAISBzFDerepvXrxsr20OfJGcTKaPcEzODfTQf2SYiTP3GFAR9b8EjycIf
 
