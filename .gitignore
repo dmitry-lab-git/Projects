@@ -50,3 +50,11 @@ core/photo_processor/output_processed/
 core/photo_processor/ai_input/**/rclone.exe
 **/rclone-v1*
 core/photo_processor/ai_input/
+core/photo_processor/
+Ledger/
+rclone*
+*.exe
+*.jpg
+*.png
+*.zip
+*.tar.gz
