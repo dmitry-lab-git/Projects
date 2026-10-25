@@ -1,6 +1,0 @@
-"Код";"TypeName";"TypeID";"TypeCode";"NetValueEffect";"AccountEffect";"NeedsEntity";"NeedsProject"
-1;Доход;TPE-001;INC;"1";"1";YES;Optional
-2;Расход;TPE-002;EXP;-1;-1;YES;Optional
-3;Ревизия;TPE-003;REV;"0";"0";NO;NO
-4;Перенос;TPE-004;TRF;"0";"1";OPTIONAL;Optional
-5;Корректировка;TPE-005;ADJ;-1;-1;NO;Optional
