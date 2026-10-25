@@ -49,21 +49,21 @@ def get_counts():
     return counts
 
 def build_markdown_block(counts: dict) -> str:
-    # Получаем время для зоны Asia/Almaty (Павлодар / Астана)
+    # Get time for Asia/Almaty zone (Pavlodar / Astana)
     now = datetime.now(ZoneInfo("Asia/Almaty")).strftime("%d.%m.%Y %H:%M:%S")
     block = f"""{START_MARKER}
 ## 📊 Ledger SystemMetrics (auto-updated: {now})
 
-| Метрика | Значение | Описание |
-|---------|----------|----------|
-| **Текущее количество транзакций** | **{counts['transactions']}** | `public.transactions` |
-| **Акты сверки счетов** | **{counts['acc_balance_snapshot_register']}** | `public.acc_balance_snapshot_register` |
-| **Верифицированные состояния** | **{counts['system_verification_log']}** | `reports.system_verification_log` с 13.10.2026 |
-| **Поток PWA Staging** | **{counts['staging_transactions']}** | `audit.staging_transactions` |
+| Metric | Value | Description |
+|--------|-------|-------------|
+| **Current transaction count** | **{counts['transactions']}** | `public.transactions` |
+| **Account reconciliation statements** | **{counts['acc_balance_snapshot_register']}** | `public.acc_balance_snapshot_register` |
+| **Verified states** | **{counts['system_verification_log']}** | `reports.system_verification_log` since 13.10.2026 |
+| **PWA Staging stream** | **{counts['staging_transactions']}** | `audit.staging_transactions` |
 
-> Формула баланса: `balance(i+1) = balance(i) + sum(i) * AccountEffect(TypeID)`
+> Balance formula: `balance(i+1) = balance(i) + sum(i) * AccountEffect(TypeID)`
 
-_Обновляется ежедневно в 00:00 (Павлодар, Астана) через APScheduler (Reflex PWA backend)_
+_Updated daily at 00:00 (Pavlodar, Astana) via APScheduler (Reflex PWA backend)_
 {END_MARKER}"""
     return block
 
