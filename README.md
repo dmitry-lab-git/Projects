@@ -1,3 +1,24 @@
+<!-- LEDGER_METRICS_START -->
+## 📊 Ledger SystemMetrics (auto-updated: 25.10.2026 19:54:21)
+
+| Метрика | Значение | Описание |
+|---------|----------|----------|
+| **Текущее количество транзакций** | **2136** | `public.transactions` |
+| **Акты сверки счетов** | **146** | `public.acc_balance_snapshot_register` |
+| **Верифицированные состояния** | **6** | `reports.system_verification_log` с 13.10.2026 |
+| **Поток PWA Staging** | **278** | `audit.staging_transactions` |
+
+> Формула баланса: `balance(i+1) = balance(i) + sum(i) * AccountEffect(TypeID)`
+
+_Обновляется ежедневно в 00:00 (Павлодар, Астана) через APScheduler (Reflex PWA backend)_
+<!-- LEDGER_METRICS_END -->
+
+---
+
+---
+
+---
+
 The central domain module of the monorepo, providing verified financial accounting, automated transaction postings, balance reconciliation, and analytical reporting.
 
 ---
@@ -55,3 +76,4 @@ The codebase for the Ledger engine is organized across the following layers of t
 * **Frontend UI Framework:** Reflex (PWA web layer architecture)
 * **Integrations:** Gemini API (Automated Intelligent Validation Engine — AIVE)
 * **Infrastructure Layer:** Bash, Linux CLI, WSL environment, Cron, Git Bundle
+

@@ -15,4 +15,5 @@ config = rx.Config(
     ],
     disable_plugins=[SitemapPlugin],  # Передаем класс, а не строку
     db_url=os.getenv("DATABASE_URL"),
+    requirements=["apscheduler"],
 )

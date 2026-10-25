@@ -1,0 +1,7 @@
+0 22 * * * /bin/bash /home/fujitsu-u745/Projects/Ledger/pwa/src/services/cron/jobs/make_dump.sh
+10 22 * * * /bin/bash /home/fujitsu-u745/Projects/Ledger/pwa/src/services/cron/jobs/make_dump_household.sh
+20 22 * * * /bin/bash /home/fujitsu-u745/Projects/Ledger/pwa/src/services/cron/jobs/make_dump_git.sh
+40 22 * * * /bin/bash /home/fujitsu-u745/Projects/Ledger/pwa/src/services/cron/jobs/archive_untouchable.sh
+50 22 * * * /bin/bash /home/fujitsu-u745/Projects/Ledger/pwa/src/services/cron/jobs/clean_and_rotate.sh
+0 21 * * 4 /bin/bash /home/fujitsu-u745/Projects/Ledger/pwa/src/services/cron/jobs/weekly_inspection.sh
+0 3 * * * /bin/bash /home/fujitsu-u745/Projects/Ledger/pwa/src/services/cron/jobs/db_dump.sh >> /home/fujitsu-u745/Projects/db/dump.log 2>&1
