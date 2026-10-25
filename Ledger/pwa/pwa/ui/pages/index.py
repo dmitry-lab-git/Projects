@@ -79,17 +79,40 @@ def index() -> rx.Component:
             rx.heading("Ledger PWA - Главное меню", size="6"),
             main_menu(),
             rx.divider(margin_y="1em"),
+
             rx.heading("Household PWA - Главное меню", size="6"),
             household_menu(),
             rx.divider(margin_y="1em"),
+
             rx.heading("Medicine PWA - Главное меню", size="6"),
-            medicine_menu(),
+            rx.hstack(
+                rx.link(
+                    rx.button(
+                        "Управление медициной",
+                        variant="outline",
+                        color_scheme="blue",
+                    ),
+                    href="/medicine",  # твой существующий роут
+                ),
+                rx.link(
+                    rx.button(
+                        "📊 Анализ приема БАДов",
+                        variant="outline",
+                        color_scheme="blue",
+                    ),
+                    href="/medicine-report",
+                ),
+                spacing="3",
+                wrap="wrap",
+            ),
             rx.divider(margin_y="1em"),
+
             rx.heading("Projects PWA - Главное меню", size="6"),
             projects_menu(),
+            
             align_items="start",
             padding="2em",
-            spacing="3",
+            spacing="4",
             width="100%",
         ),
         max_width="900px",
