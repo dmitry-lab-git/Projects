@@ -89,15 +89,15 @@ class TransactionTemplate(sqlmodel.SQLModel, table=True):
     transaction_name: str = Field(sa_column=Column(String(150), nullable=False))
     amount: Optional[Decimal] = Field(sa_column=Column(Numeric(15, 2), nullable=True))
     
-    currency_id: Optional[uuid.UUID] = Field(default=None, foreign_key="dicts_currencies.id")
-    type_id: Optional[uuid.UUID] = Field(default=None, foreign_key="dict_types.id")
-    entity_id: Optional[uuid.UUID] = Field(default=None, foreign_key="entities.id")
-    category_id: Optional[uuid.UUID] = Field(default=None, foreign_key="dict_categories.id")
-    responsible_id: Optional[uuid.UUID] = Field(default=None, foreign_key="responsibles.id")
-    contragent_from_id: Optional[uuid.UUID] = Field(default=None, foreign_key="contragents.id")
-    contragent_to_id: Optional[uuid.UUID] = Field(default=None, foreign_key="contragents.id")
-    account_id: Optional[uuid.UUID] = Field(default=None, foreign_key="accounts.id")
-    status_id: uuid.UUID = Field(foreign_key="dict_statuses.id")
+    currency_id: Optional[uuid.UUID] = Field(default=None, foreign_key="dicts.dicts_currencies.id")
+    type_id: Optional[uuid.UUID] = Field(default=None, foreign_key="dicts.dict_types.id")
+    entity_id: Optional[uuid.UUID] = Field(default=None, foreign_key="dicts.entities.id")
+    category_id: Optional[uuid.UUID] = Field(default=None, foreign_key="dicts.dict_categories.id")
+    responsible_id: Optional[uuid.UUID] = Field(default=None, foreign_key="dicts.responsibles.id")
+    contragent_from_id: Optional[uuid.UUID] = Field(default=None, foreign_key="dicts.contragents.id")
+    contragent_to_id: Optional[uuid.UUID] = Field(default=None, foreign_key="dicts.contragents.id")
+    account_id: Optional[uuid.UUID] = Field(default=None, foreign_key="dicts.accounts.id")
+    status_id: uuid.UUID = Field(foreign_key="dicts.dict_statuses.id")
     created_at: datetime = Field(
         sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")},
         default=None

@@ -34,22 +34,6 @@ class State(rx.State):
     @rx.event
     def load_staging_transactions(self):
         with SessionLocal() as session:
-            query = select(StagingTransaction).order_by(desc(StagingTransaction.created_at))
-            results = session.execute(query).scalars().all()
-            
-            self.staging_transactions = [
-                {
-                    "transaction_name": tx.transaction_name or "Без названия",
-                    "amount": float(tx.amount or 0.0),
-                    "operation_date": str(tx.operation_date or ""),
-                    # Обращаемся к новому полю status_id (или вытаскиваем статус связью)
-                    "status": str(tx.status_id or "NEW")
-                }
-                for tx in results
-            ]
-    @rx.event
-    def load_staging_transactions(self):
-        with SessionLocal() as session:
             query = (
                 select(StagingTransaction, DictStatus.code)
                 .outerjoin(DictStatus, StagingTransaction.status_id == DictStatus.id)
@@ -59,9 +43,12 @@ class State(rx.State):
             
             self.staging_transactions = [
                 {
-                    "transaction_name": tx.transaction_name or "Без названия",
-                    "amount": float(tx.amount or 0.0),
-                    "operation_date": str(tx.operation_date or ""),
+                    "id": str(tx.id)[:8] if tx.id else "-",
+                    "transaction_name": str(tx.transaction_name or "-"),
+                    "code": str(getattr(tx, "code", None) or getattr(tx, "transaction_code", None) or "-"),
+                    "amount": f"{float(tx.amount or 0.0):.2f}" if tx.amount is not None else "-",
+                    "operation_date": str(tx.operation_date or "-"),
+                    "operation_time": str(tx.operation_time or "-"),
                     "status": status_code or "NEED_REVIEW"
                 }
                 for tx, status_code in results
@@ -101,12 +88,9 @@ class State(rx.State):
     def current_time(self) -> str:
         return datetime.now().strftime("%H:%M")
 
-        # ... импорты вверху файла нужно будет дополнить:
-    # from ..models.dicts import DictType
-    
     type_id: str = ""
     account_id: str = ""
-    search_text: str = "" # Перенес сюда, так как она используется в фильтрах
+    search_text: str = ""
 
     @rx.event
     def set_type_id(self, value: str):
@@ -132,8 +116,6 @@ class State(rx.State):
     @rx.var
     def account_list(self) -> list[tuple[str, str]]:
         with SessionLocal() as session:
-            from sqlalchemy import text
-            # Оставляем сырой SQL для сложного отчета
             sql = text("""
                 SELECT 
                     asr.account_id, 
@@ -170,11 +152,10 @@ class State(rx.State):
     @rx.var
     def entity_list(self) -> list[tuple[str, str]]:
         with SessionLocal() as session:
-            from sqlalchemy import text
             sql = text("""
                 SELECT 
                     e.entity_id, 
-                    e.code,           -- Явно указали таблицу 'e'
+                    e.code,
                     e.entity_name, 
                     c.category_name 
                 FROM dicts.entities e 
@@ -193,7 +174,6 @@ class State(rx.State):
         return [item for item in self.entity_list if search in item[1].lower()]
 
     category_id: str = ""
-    # search_text уже определена выше
     contragent_from_id: str = ""
     contragent_to_id: str = ""
 
@@ -204,7 +184,6 @@ class State(rx.State):
     @rx.var
     def category_list(self) -> list[tuple[str, str]]:
         with SessionLocal() as session:
-            from sqlalchemy import text
             sql = text("SELECT c.category_id, c.code, c.category_name, p.category_name AS parent_name FROM dicts.dict_categories c LEFT JOIN dicts.dict_categories p ON c.parent_category_id = p.category_id ORDER BY c.category_name")
             rows = session.execute(sql).fetchall()
             return [(str(r.category_id), f"{r.category_name} ({r.code}) | {r.parent_name or 'Корневая'}") for r in rows]
@@ -231,7 +210,6 @@ class State(rx.State):
     @rx.var
     def contragent_list(self) -> list[tuple[str, str]]:
         with SessionLocal() as session:
-            # Используем ORM класс Contragent
             stmt = select(Contragent).order_by(Contragent.code)
             rows = session.execute(stmt).scalars().all()
             return [(str(r.contragent_id), f"{r.contragent_name} ({r.code})") for r in rows]
@@ -257,7 +235,6 @@ class State(rx.State):
         import uuid
 
         with SessionLocal() as session:
-            # 1. Вспомогательная функция для поиска настоящего uuid.id по строковому идентификатору справочника
             def get_uuid_by_field(model, field_name: str, val: str):
                 if not val or not val.strip():
                     return None
@@ -266,7 +243,6 @@ class State(rx.State):
                 ).scalars().first()
                 return row.id if row else None
 
-            # 2. Получаем системный статус (например, по коду "NEW" из dicts.dict_statuses)
             status_row = session.execute(
                 select(DictStatus).where(
                     DictStatus.entity_type == "TRANSACTION",
@@ -275,33 +251,27 @@ class State(rx.State):
             ).scalars().first()
             status_uuid = status_row.id if status_row else None
 
-            # 3. Получаем системную валюту (например, "KZT" из dicts.dicts_currencies)
             currency_row = session.execute(
                 select(DictsCurrency).where(DictsCurrency.currency_id == "KZT")
             ).scalars().first()
             currency_uuid = currency_row.id if currency_row else None
 
-            # 4. Получаем UUID ответственного (по коду/identifier, например "RSP-001")
             resp_code = form_data.get("responsible_id", "RSP-001")
             responsible_row = session.execute(
                 select(Responsible).where(Responsible.responsible_id == resp_code)
             ).scalars().first()
             responsible_uuid = responsible_row.id if responsible_row else None
 
-            # 5. Создаем объект транзакции с маппингом строковых значений из формы/стейта в реальные UUID
             new_tx = StagingTransaction(
                 id=uuid.uuid4(),
                 transaction_name=form_data.get("transaction_name"),
                 amount=round(valid_amount, 2),
-                
-                # Безопасно сопоставляем строковые ID из селектов интерфейса с реальными UUID таблиц диктов
                 contragent_from_id=get_uuid_by_field(Contragent, "contragent_id", self.contragent_from_id),
                 contragent_to_id=get_uuid_by_field(Contragent, "contragent_id", self.contragent_to_id),
                 category_id=get_uuid_by_field(DictCategory, "category_id", self.category_id),
                 account_id=get_uuid_by_field(Account, "account_id", self.account_id),
                 type_id=get_uuid_by_field(DictType, "type_id", self.type_id),
                 entity_id=get_uuid_by_field(Entity, "entity_id", self.entity_id),
-                
                 operation_date=form_data.get("operation_date") or None,
                 operation_time=form_data.get("operation_time") or None,
                 status_id=status_uuid,
@@ -315,6 +285,7 @@ class State(rx.State):
             session.add(new_tx)
             session.commit()
 
+        self.load_staging_transactions()
         return rx.window_alert("Запись с контрагентами ушла в staging!")
 
     @rx.event
@@ -330,7 +301,6 @@ class State(rx.State):
         if not tx_name:
             return rx.window_alert("Ошибка: Название транзакции не заполнено!")
 
-        # Используем класс Transaction (ORM)
         new_transaction = Transaction(
             transaction_name=tx_name,
             amount=amount
@@ -357,14 +327,13 @@ class SnapshotRegisterState(rx.State):
     def set_account_id(self, value: str):
         self.account_id = value
 
-    # Получаем список счетов для выпадающего списка
     @rx.var
     def account_list(self) -> list[tuple[str, str]]:
         with SessionLocal() as session:
-            # ИСПОЛЬЗУЕМ КЛАСС Account и его атрибут __table__ или ORM select
             stmt = select(Account).order_by(Account.account_name)
             rows = session.execute(stmt).scalars().all()
             return [(str(r.account_id), r.account_name) for r in rows]
+
     @rx.var
     def filtered_accounts(self) -> list[tuple[str, str]]:
         if not self.search_text:
@@ -373,10 +342,9 @@ class SnapshotRegisterState(rx.State):
 
     @rx.event
     def load_snapshots(self):
-        """Вычисляем следующий code как максимальный + 1"""
         with SessionLocal() as session:
             max_code = session.execute(select(func.max(AccBalanceSnapshot.code))).scalar()
-            self.code = (max_code or 45) + 1  # Если пусто, начнет с 46
+            self.code = (max_code or 45) + 1
 
     @rx.event
     def handle_submit(self, form_data: dict):
@@ -402,7 +370,6 @@ class SnapshotRegisterState(rx.State):
             session.execute(insert(AccBalanceSnapshot).values(**insert_values))
             session.commit()
 
-        # Обновляем code для следующей записи
         self.load_snapshots()
         return rx.window_alert("Снимок баланса успешно записан!")
 
@@ -412,7 +379,6 @@ class ReportState(rx.State):
     @rx.event
     def load_report(self):
         with SessionLocal() as session:
-            # Корректный SQL-запрос с добавленным JOIN для валюты
             sql_query = text("""
                 SELECT 
                     r.account_id, 
@@ -423,16 +389,12 @@ class ReportState(rx.State):
                     e.entity_name,
                     dc.currency_id 
                 FROM reports.v_active_account_report r
-                -- Связываем текстовый ID (например, 'ACC-011') со строковым полем account_id
                 LEFT JOIN dicts.accounts a ON r.account_id = a.account_id
-                -- Выходим на Направленность по текстовому entity_id (например, 'ENT-070')
                 LEFT JOIN dicts.entities e ON a.entity_id = e.entity_id
-                -- Подтягиваем валюту из справочника через поле currency таблицы accounts
                 LEFT JOIN dicts.dicts_currencies dc ON a.currency = dc.id
             """)
             results = session.execute(sql_query).fetchall()
             
-            # Преобразуем результаты, добавляя entity_name и currency_id
             self.report_data = [
                 {
                     "account_id": str(row.account_id),
@@ -440,7 +402,6 @@ class ReportState(rx.State):
                     "balance": f"{float(row.balance):.2f}" if row.balance is not None else "0.00",
                     "account_balance_status": str(row.account_balance_status),
                     "last_updated": str(row.last_updated),
-                    # Безопасное приведение к строке с обработкой пустых значений
                     "entity_name": str(row.entity_name).strip() if row.entity_name and str(row.entity_name).strip() != 'None' else "—",
                     "currency_id": str(row.currency_id).strip() if row.currency_id and str(row.currency_id).strip() != 'None' else "—"
                 }
@@ -498,7 +459,6 @@ class SummaryReportState(rx.State):
             target_date = date.today()
 
         if self.current_tab == "entity":
-            # Направленность -> Название категории (e.category_id -> cat.category_id)
             sql_query = text(
                 """
                 SELECT 
@@ -515,7 +475,6 @@ class SummaryReportState(rx.State):
                 """
             )
         elif self.current_tab == "contragent":
-            # Контрагент -> Адрес (c.address_id = a.id, обновленное поле address_name)
             sql_query = text(
                 """
                 SELECT 
@@ -532,7 +491,6 @@ class SummaryReportState(rx.State):
                 """
             )
         elif self.current_tab == "category":
-            # Категория -> Родительская категория (cat.parent_category_id = pcat.category_id)
             sql_query = text(
                 """
                 SELECT 
@@ -549,7 +507,6 @@ class SummaryReportState(rx.State):
                 """
             )
         else:
-            # Счет -> Базовая направленность счета (из dicts.accounts)
             sql_query = text(
                 """
                 SELECT 

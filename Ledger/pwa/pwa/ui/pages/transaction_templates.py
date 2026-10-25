@@ -11,20 +11,23 @@ def transaction_templates_page() -> rx.Component:
                 rx.vstack(
                     rx.heading("Новый шаблон транзакции", size="4"),
                     
-                    # Выбор шаблона для автозаполнения
+                    # Выбор шаблона для автозаполнения (с защитой через rx.cond)
                     rx.vstack(
                         rx.text("Выбрать шаблон для автозаполнения:", size="2", weight="bold"),
-                        rx.select.root(
-                            rx.select.trigger(placeholder="Выберите шаблон..."),
-                            rx.select.content(
-                                rx.foreach(
-                                    TransactionTemplateState.template_options,  # Без .to()
-                                    lambda item: rx.select.item(item[1], value=item[0])
+                        rx.cond(
+                            TransactionTemplateState.template_options,
+                            rx.select.root(
+                                rx.select.trigger(placeholder="Выберите шаблон..."),
+                                rx.select.content(
+                                    rx.foreach(
+                                        TransactionTemplateState.template_options,
+                                        lambda item: rx.select.item(item[1], value=item[0])
+                                    ),
                                 ),
+                                on_change=TransactionTemplateState.select_template,
+                                width="100%",
                             ),
-                            value=TransactionTemplateState.selected_template_id,
-                            on_change=TransactionTemplateState.select_template,
-                            width="100%",
+                            rx.text("Загрузка...", size="2", color="gray"),
                         ),
                         spacing="1",
                         width="100%",
@@ -49,7 +52,7 @@ def transaction_templates_page() -> rx.Component:
                                 rx.select.trigger(placeholder="Выберите контрагента..."),
                                 rx.select.content(
                                     rx.foreach(
-                                        TransactionTemplateState.filtered_contragents,  # Без .to()
+                                        TransactionTemplateState.filtered_contragents,
                                         lambda item: rx.select.item(item[1], value=item[0])
                                     ),
                                 ),
@@ -63,7 +66,7 @@ def transaction_templates_page() -> rx.Component:
                                 rx.select.trigger(placeholder="Выберите контрагента..."),
                                 rx.select.content(
                                     rx.foreach(
-                                        TransactionTemplateState.filtered_contragents,  # Без .to()
+                                        TransactionTemplateState.filtered_contragents,
                                         lambda item: rx.select.item(item[1], value=item[0])
                                     ),
                                 ),
@@ -77,7 +80,7 @@ def transaction_templates_page() -> rx.Component:
                                 rx.select.trigger(placeholder="Выберите категорию..."),
                                 rx.select.content(
                                     rx.foreach(
-                                        TransactionTemplateState.filtered_categories,  # Без .to()
+                                        TransactionTemplateState.filtered_categories,
                                         lambda item: rx.select.item(item[1], value=item[0])
                                     ),
                                 ),
@@ -91,7 +94,7 @@ def transaction_templates_page() -> rx.Component:
                                 rx.select.trigger(placeholder="Выберите направленность..."),
                                 rx.select.content(
                                     rx.foreach(
-                                        TransactionTemplateState.filtered_entities,  # Без .to()
+                                        TransactionTemplateState.filtered_entities,
                                         lambda item: rx.select.item(item[1], value=item[0])
                                     ),
                                 ),
@@ -105,7 +108,7 @@ def transaction_templates_page() -> rx.Component:
                                 rx.select.trigger(placeholder="Выберите счет..."),
                                 rx.select.content(
                                     rx.foreach(
-                                        TransactionTemplateState.filtered_accounts,  # Без .to()
+                                        TransactionTemplateState.filtered_accounts,
                                         lambda item: rx.select.item(item[1], value=item[0])
                                     ),
                                 ),
@@ -119,26 +122,12 @@ def transaction_templates_page() -> rx.Component:
                                 rx.select.trigger(placeholder="Выберите тип..."),
                                 rx.select.content(
                                     rx.foreach(
-                                        TransactionTemplateState.filtered_types,  # Без .to()
+                                        TransactionTemplateState.filtered_types,
                                         lambda item: rx.select.item(item[1], value=item[0])
                                     ),
                                 ),
                                 value=TransactionTemplateState.type_id,
                                 on_change=TransactionTemplateState.set_type_id,
-                                width="100%",
-                            ),
-                            
-                            rx.text("Статус шаблона:", size="2", weight="bold"),
-                            rx.select.root(
-                                rx.select.trigger(placeholder="Выберите статус..."),
-                                rx.select.content(
-                                    rx.foreach(
-                                        TransactionTemplateState.filtered_statuses,  # Без .to()
-                                        lambda item: rx.select.item(item[1], value=item[0])
-                                    ),
-                                ),
-                                value=TransactionTemplateState.status_id,
-                                on_change=TransactionTemplateState.set_status_id,
                                 width="100%",
                             ),
 
@@ -171,7 +160,7 @@ def transaction_templates_page() -> rx.Component:
                         ),
                         rx.table.body(
                             rx.foreach(
-                                TransactionTemplateState.templates,  # Без .to()
+                                TransactionTemplateState.templates,
                                 lambda t: rx.table.row(
                                     rx.table.cell(t.get("transaction_name")),
                                     rx.table.cell(t.get("amount")),
