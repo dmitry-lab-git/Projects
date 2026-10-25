@@ -39,3 +39,7 @@ core/photo_processor/ai_input/
 **/rclone-v1*
 rclone
 rclone.exe
+
+# --- Локальные рабочие данные, никогда не коммитить ---
+**/_local/
+**/.local/
