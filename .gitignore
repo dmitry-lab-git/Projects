@@ -1,60 +1,41 @@
-# Игнорировать защищенную папку со всеми секретами и ключами
+# Секреты
 secure_folder/
-
-# Игнорировать любые файлы .env во всех подпапках
 .env
 .env.*
 
-# Системные файлы и кэш
+# Система
 .DS_Store
 Thumbs.db
 .vscode/
 
-# Логи и временные файлы
+# Логи
 *.log
 *.tmp
 
-# Python (если есть бэкенд на Python)
+# Python
 __pycache__/
 *.py[cod]
 venv/
-.env/
 
-# Node.js / Web (если есть фронтенд или PWA)
+# Node
 node_modules/
 dist/
 build/
-.npm/
-
-# Локальные дампы и бэкапы СУБД (запрет фиксации SQL-экспортов)
-db_dump_files/
-*.sql
-*.bak
-
-# Исторические исходные данные и FLW-пакеты (запрет фиксации CSV/ZIP архивов с iPad)
-Raw Data/
-*.zip
-*.csv
-
-# Специфичный кэш фреймворка Reflex (PWA)
 .web/
 assets/py/
 
-# Документы и чеки
-Ledger/raw_data_ipad/docs/
+# Дампы БД и бэкапы
+db_dump_files/
+*.sql
+*.bak
+*.bundle
 
-# rclone
-Ledger/raw_data_ipad/iPad_import/rclone-v1.74.3-windows-amd64/
+# Тяжелые данные - игнор ТОЛЬКО данные, не весь код
+Raw Data/
+**/raw_data_ipad/
 core/photo_processor/input_photos/
 core/photo_processor/output_processed/
-core/photo_processor/ai_input/**/rclone.exe
-**/rclone-v1*
 core/photo_processor/ai_input/
-core/photo_processor/
-Ledger/
-rclone*
-*.exe
-*.jpg
-*.png
-*.zip
-*.tar.gz
+**/rclone-v1*
+rclone
+rclone.exe

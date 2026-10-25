@@ -1,0 +1,109 @@
+
+BEGIN
+    -- 1. Очищаем витрину перед заполнением
+    TRUNCATE TABLE public.ledger;
+
+    -- 2. Расчет баланса с динамическим поиском ближайшего снапшота в прошлом
+    INSERT INTO public.ledger (
+        code, tr_id, tr_cat_id, tr_cat_name, registration_date, operation_date,
+        prev_acc_tr_balance, prev_acc_tr_id, acc_tr_count, tr_acc_balance, 
+        tr_acc_id, tr_type_id, tr_type_name, tr_sum, pocket_balance, 
+        cat_exp_tr_cum_sum, -- Целевое поле в структуру INSERT
+        balance_diff
+    )
+    WITH raw_transactions AS (
+        -- Шаг А: Базовая подготовка транзакций со знаками строго по Numbers
+        SELECT 
+            tx.*,
+            CASE 
+                WHEN tx.tr_type_id = 'TPE-001' THEN COALESCE(tx.tr_sum, 0)
+                ELSE -COALESCE(tx.tr_sum, 0)
+            END AS signed_sum,
+            (ROW_NUMBER() OVER (PARTITION BY tx.acc_id ORDER BY tx.tr_id ASC) - 1) AS db_acc_tr_count
+        FROM public.tx_register tx
+    ),
+    dynamic_initial_snapshots AS (
+        -- Шаг Б: Динамический поиск ближайшего прошлого снапшота для первой строки аккаунта
+        SELECT DISTINCT ON (t.acc_id)
+            t.acc_id,
+            snap."Balance" AS snap_start_balance
+        FROM raw_transactions t
+        JOIN public.acc_balance_snapshot_register snap 
+            ON t.acc_id = snap."AccID" 
+           AND snap."TrID" <= t.tr_id 
+        WHERE t.db_acc_tr_count = 0  
+        ORDER BY t.acc_id, snap."TrID" DESC, snap."Код" DESC 
+    ),
+    starting_balances AS (
+        -- Шаг В: Соединяем транзакции со стартовыми балансами
+        SELECT 
+            rt.*,
+            COALESCE(snap.snap_start_balance, 0) AS base_saldo
+        FROM raw_transactions rt
+        LEFT JOIN dynamic_initial_snapshots snap ON rt.acc_id = snap.acc_id
+    ),
+    final_calc AS (
+        -- Шаг Г: Оконный расчет накопительного итога (Чистая математика без самокоррекций)
+        SELECT 
+            *,
+            SUM(signed_sum) OVER (PARTITION BY acc_id ORDER BY tr_id ASC) AS running_sum,
+            
+            -- ВОЗВРАЩАЕМ ЦЕЛЕВОЙ ФИЛЬТР КОНТУРА: Накапливаем только Расходы и Корректировки
+            SUM(
+                CASE 
+                    WHEN tr_type_id IN ('TPE-002', 'TPE-005') THEN signed_sum
+                    ELSE 0
+                END
+            ) OVER (ORDER BY tr_id ASC) AS category_running_sum
+        FROM starting_balances
+    ),
+    enriched_pockets AS (
+        -- Шаг Д: Привязываем фактический карман из FLW_037 для контрольной сверки
+        SELECT 
+            fc.code, fc.tr_id, fc.tr_cat_id, fc.registration_date, fc.operation_date,
+            fc.base_saldo, fc.running_sum, fc.db_acc_tr_count, fc.acc_id, fc.tr_type_id, fc.tr_sum,
+            fc.category_running_sum,
+            COALESCE(f37."Баланс карманных средств *", 0) AS f37_pocket_balance
+        FROM final_calc fc
+        LEFT JOIN public."transaction_registry FLW_037" f37 ON fc.code = f37.code
+    ),
+    pre_calculated_ledger AS (
+        -- Шаг Е: Предварительный расчет полей баланса
+        SELECT 
+            code, tr_id, tr_cat_id, tr_cat_id as tr_cat_name, registration_date, operation_date,
+            CASE 
+                WHEN db_acc_tr_count = 0 THEN base_saldo
+                ELSE (base_saldo + COALESCE(LAG(running_sum) OVER (PARTITION BY acc_id ORDER BY tr_id ASC), 0))
+            END AS prev_acc_tr_balance,
+            CASE 
+                WHEN db_acc_tr_count = 0 THEN 'InitialSnapshot' 
+                ELSE LAG(tr_id) OVER (PARTITION BY acc_id ORDER BY tr_id ASC) 
+            END AS prev_acc_tr_id,
+            db_acc_tr_count as acc_tr_count,
+            (base_saldo + running_sum) AS tr_acc_balance,
+            acc_id as tr_acc_id, tr_type_id, 
+            CASE tr_type_id 
+                WHEN 'TPE-001' THEN 'Доход' WHEN 'TPE-002' THEN 'Расход'
+                WHEN 'TPE-003' THEN 'Ревизия' WHEN 'TPE-004' THEN 'Перенос'
+                WHEN 'TPE-005' THEN 'Корректировка' ELSE 'Неизвестно'
+            END as tr_type_name, 
+            tr_sum,
+            f37_pocket_balance as pocket_balance,
+            category_running_sum as cat_exp_tr_cum_sum
+        FROM enriched_pockets
+    )
+    -- Шаг Ж: Итоговая выгрузка с математически гарантированным расчетом разницы
+    SELECT 
+        code, tr_id, tr_cat_id, tr_cat_name, registration_date, operation_date,
+        prev_acc_tr_balance, prev_acc_tr_id, acc_tr_count, tr_acc_balance, 
+        tr_acc_id, tr_type_id, tr_type_name, tr_sum, pocket_balance, cat_exp_tr_cum_sum,
+        (tr_acc_balance - pocket_balance) as balance_diff
+    FROM pre_calculated_ledger;
+
+    -- Возвращаем краткий статус выполнения для логов
+    RETURN QUERY 
+    SELECT 
+        COUNT(*)::INT4, 
+        SUM(ABS(balance_diff))::INT4 
+    FROM public.ledger;
+END;

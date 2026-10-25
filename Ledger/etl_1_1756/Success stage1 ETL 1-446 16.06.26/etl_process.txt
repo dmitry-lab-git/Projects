@@ -1,0 +1,306 @@
+import os
+import sys
+import getpass
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from datetime import datetime
+from decimal import Decimal, ROUND_HALF_UP
+
+
+def apply_mapping(source_row, mapping_rules):
+    """СТУПЕНЬ 1: Сборка структуры по правилам etl_mapping_rules."""
+    target_row = {}
+    for rule in mapping_rules:
+        src_col = rule['source_column']
+        tgt_col = rule['target_column']
+        trans_type = rule['transformation_type']
+        if trans_type == 'DIRECT' and src_col:
+            target_row[tgt_col] = source_row.get(src_col)
+        elif trans_type == 'CONSTANT':
+            target_row[tgt_col] = None
+        elif trans_type == 'DATE_CAST' and src_col:
+            val = source_row.get(src_col)
+            if val:
+                try:
+                    target_row[tgt_col] = datetime.strptime(val.strip(), rule['transformation_rule']).date()
+                except Exception:
+                    target_row[tgt_col] = None
+            else:
+                target_row[tgt_col] = None
+    return target_row
+
+def load_account_effects(cur):
+    """СТУПЕНЬ 1.5: Динамическая загрузка маппинга знаков из справочника типов."""
+    query = 'SELECT "TypeName", "AccountEffect" FROM public.dict_type WHERE "TypeName" IS NOT NULL'
+    cur.execute(query)
+    rows = cur.fetchall()
+    effects_map = {}
+    for r in rows:
+        try:
+            raw_effect = str(r['AccountEffect']).replace('+', '').strip()
+            effects_map[str(r['TypeName']).strip()] = int(raw_effect)
+        except (ValueError, TypeError):
+            effects_map[str(r['TypeName']).strip()] = 1
+    return effects_map
+
+def load_account_registry(cur):
+    """СТУПЕНЬ 1.6: Динамическая загрузка маппинга счетов v1.0 -> v3.0."""
+    query = 'SELECT "AccountName", "AccID" FROM public.account_register WHERE "AccountName" IS NOT NULL'
+    cur.execute(query)
+    rows = cur.fetchall()
+    account_map = {str(r['AccountName']).strip(): str(r['AccID']).strip() for r in rows}
+    return account_map
+
+def run_etl_session():
+    # Авторизация
+    db_password = os.getenv("DB_PASSWORD") or getpass.getpass(prompt="Введите пароль PostgreSQL: ")
+    conn_info = f"host=localhost port=5432 dbname=postgres user=postgres password={db_password}"
+    
+    try:
+        with psycopg2.connect(conn_info) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                # Читаем архитектурную карту (маппинг полей)
+                cur.execute("SELECT * FROM public.etl_mapping_rules WHERE is_active = true")
+                mapping_rules = cur.fetchall()
+                
+                # Читаем санитарные правила (очистка контента)
+                cur.execute("SELECT * FROM public.etl_transform_rules WHERE is_active = true")
+                transform_rules = cur.fetchall()
+                
+                # Загружаем справочники метаданных
+                account_effects = load_account_effects(cur)
+                account_registry = load_account_registry(cur)
+                
+                # Проверяем флаги из таблицы etl_transform_rules
+                has_skip_null = any(r['rule_type'] == 'SKIP_NULL' for r in transform_rules)
+                has_shift_duplicate = any(r['rule_type'] == 'SHIFT_DUPLICATE' for r in transform_rules)
+                has_split_double_entry = any(r['rule_type'] == 'SPLIT_DOUBLE_ENTRY' for r in transform_rules)
+                
+                # Извлекаем сырые данные
+                print("Извлечение данных из FLW_030...")
+                cur.execute('SELECT * FROM public."transaction_registry FLW_030" ORDER BY "Код" ASC NULLS LAST')
+                raw_data = cur.fetchall()
+                # --- БЛОК ПРЕДПОДГОТОВКИ: Патчинг сырых данных через правила ADD_RAW_RECORD ---
+                patched_raw_data = []
+                for row in raw_data:
+                    patched_raw_data.append(row)
+                    orig_code = row.get("Код")
+                    
+                    if orig_code is not None:
+                        rules_to_insert = [r for r in transform_rules 
+                                        if r.get('rule_type') == 'ADD_RAW_RECORD' 
+                                        and str(r.get('source_value')).strip() == str(orig_code).strip()
+                                        and r.get('is_active') is True]
+                        
+                        for rule in rules_to_insert:
+                            try:
+                                parts = [p.strip() for p in str(rule.get('target_value')).split('|')]
+                                virtual_row = {
+                                    "Код": f"VIRT-{orig_code}-{rule['rule_id']}",
+                                    "AccID": rule.get('target_column'),               # Напрямую пишем ACC-004 / ACC-005 в обход маппинга
+                                    "Счет": rule.get('target_column'),                # На всякий случай дублируем в Счет
+                                    "Сумма *": float(parts[0]) if parts else 0.0,      # Сумма идет первым элементом [0]
+                                    "Наименование": parts[1] if len(parts) > 1 else "Добавленная проводка",
+                                    "Дата": parts[2] if len(parts) > 2 else None,
+                                    "Проект": int(parts[3]) if len(parts) > 3 and parts[3] else None,
+                                    "Категория": parts[4] if len(parts) > 4 else None,
+                                    "Ответственный": parts[5] if len(parts) > 5 else "АУ",
+                                    "Тип": parts[6] if len(parts) > 6 else None,
+                                    "Валюта": parts[7] if len(parts) > 7 else "тг",
+                                    "Контрагент донор": 56,
+                                    "Контрагент акцептор": 56,
+                                    "Баланс": 0.0,
+                                    "Баланс кассы *": 0.0,
+                                    "Баланс card средств *": 0.0,
+                                    "Баланс карманных средств *": 0.0
+                                }
+
+                                patched_raw_data.append(virtual_row)
+                                print(f"[ETL ВСТАВКА] Добавлена виртуальная строка после Кода {orig_code} для счета {rule['target_column']}")
+                            except Exception as e:
+                                import sys
+                                print(f"[ETL ОШИБКА] Не удалось вставить строку по правилу {rule.get('rule_id')}: {e}", file=sys.stderr)
+
+                raw_data = patched_raw_data
+                # -----------------------------------------------------------------------------
+
+                print(f"Трансформация {len(raw_data)} строк...")
+                transformed_batch = []
+                last_used_code = 0
+                
+                # --- ИНИЦИАЛИЗАЦИЯ БАЛАНСОВ (ДО ЦИКЛА) ---
+                running_balances = {}
+                has_running_total = any(r['rule_type'] == 'RUNNING_TOTAL' for r in transform_rules)
+                
+                def update_balance_logic(item, target_acc_id, raw_row):
+                    item['acc_id'] = target_acc_id
+                    if has_running_total:
+                        t_sum = Decimal(str(item.get('tr_sum') or 0))
+                        if target_acc_id not in running_balances:
+                            running_balances[target_acc_id] = Decimal('0')
+                        running_balances[target_acc_id] += t_sum
+                        item['python_acc_balance'] = running_balances[target_acc_id].quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                    
+                    cash_part = Decimal(str(raw_row.get('Баланс кассы *') or 0))
+                    pocket_part = Decimal(str(raw_row.get('Баланс карманных средств *') or 0))
+                    item['manual_balance'] = cash_part + pocket_part
+                    
+                    if target_acc_id == 'ACC-003':
+                        item['manual_acc_balance'] = cash_part
+                    elif target_acc_id == 'ACC-004':
+                        item['manual_acc_balance'] = pocket_part
+                    else:
+                        item['manual_acc_balance'] = Decimal('0')
+                        
+                    current_row_code = None
+                    for k, v in raw_row.items():
+                        if str(k).strip().lower() == 'код':
+                            current_row_code = v
+                            break
+                            
+                    if current_row_code is not None:
+                        corr_rule = next((r for r in transform_rules
+                        if r['rule_type'] == 'BALANCE_CORRECTION'
+                        and str(r['source_value']).strip() == str(current_row_code).strip()
+                        and str(r['target_value']).strip().startswith(f"{target_acc_id}:")),
+                        None)
+                        if corr_rule:
+                            cfg_acc, cfg_val = corr_rule['target_value'].split(':')
+                            if target_acc_id == cfg_acc.strip():
+                                item['manual_acc_balance'] = Decimal(cfg_val.strip())
+                                print(f"[DEBUG ETL] Найдено правило {corr_rule['rule_id']} для строки {current_row_code} ({target_acc_id}). Изменяем на {cfg_val.strip()}")
+                                
+                    py_bal = item.get('python_acc_balance') or Decimal('0')
+                    man_bal = item.get('manual_acc_balance') or Decimal('0')
+                    item['diff_balance'] = py_bal - man_bal
+
+                
+                trigger_accounts = {'Касса', 'Карманные средства', 'Все счета', 'ACC-003', 'ACC-004', 'ACC-005', 'ACC-006'}
+                
+                # --- НАЧАЛО ЦИКЛА ---
+                for row in raw_data:
+                    original_code = row.get("Код")
+                    if original_code is None and has_skip_null:
+                        continue
+                        
+                    # --- НОВОЕ: Пропуск экономически пустых строк по логу исключений ---
+                    skip_rule = next((r for r in transform_rules
+                                      if r['rule_type'] == 'SKIP_TRANSACTION'
+                                      and r['source_value'] == str(original_code)), None)
+                    if skip_rule and skip_rule['target_value'] == 'DROP':
+                        continue 
+                        
+                    clean_row = apply_mapping(row, mapping_rules)
+                    # УНИВЕРСАЛЬНЫЙ ДЕКЛАРАТИВНЫЙ МОДЕРНИЗАТОР ПОЛЕЙ (v9.0)
+                    # =====================================================================
+                    row_source_id = str(original_code).strip() if original_code is not None else ""
+                    
+                    field_rules = [r for r in transform_rules 
+                                if r.get('rule_type') == 'REPLACE_FIELD' 
+                                and str(r.get('source_value')).strip() == row_source_id
+                                and r.get('is_active') is True]
+                    
+                    for rule in field_rules:
+                        target_col = rule.get('target_column')
+                        new_val = rule.get('target_value')
+                        if target_col in clean_row:
+                            clean_row[target_col] = new_val
+                            
+                    # =====================================================================
+
+                    type_name = str(clean_row.get('tr_type_id', '')).strip()
+                    raw_acc_name = str(clean_row.get('acc_id', '')).strip()
+                    current_acc_id = account_registry.get(raw_acc_name, raw_acc_name)
+                    clean_row['acc_id'] = current_acc_id
+
+                    # --- ГЛОБАЛЬНЫЙ ПРИНУДИТЕЛЬНЫЙ МАППИНГ ТИПОВ (Правило №22) ---
+                    type_resolve_rule = next((r for r in transform_rules
+                                              if r['rule_type'] == 'RESOLVE_TYPE_EFFECT'
+                                              and str(r['source_value']).strip() == type_name), None)
+                    if type_resolve_rule:
+                        new_type_name = str(type_resolve_rule['target_value']).strip()
+                        clean_row['tr_type_id'] = new_type_name
+                        type_name = new_type_name
+
+                    
+                    split_rule = next((r for r in transform_rules
+                                      if r['rule_type'] == 'SPLIT_RULE'
+                                      and r['source_value'] == type_name), None)
+                    
+                    # --- ЛОГИКА РАЗДВОЕНИЯ (Split) ---
+                    exc_rule = next((r for r in transform_rules
+                                     if r['rule_type'] == 'EXCEPTION_LOG'
+                                     and r['source_value'] == str(original_code)), None)
+                    
+                    is_split_required = (split_rule and split_rule['target_value'] == 'DOUBLE_ENTRY') or (exc_rule and '|' in exc_rule['target_value'])
+                    
+                    if is_split_required and current_acc_id in trigger_accounts:
+                        # --- ЛОГИКА РАЗДВОЕНИЯ (SPLIT) ---
+                        raw_sum = Decimal(str(row.get('Сумма *') or 0))
+                        donor_acc_id = current_acc_id
+                        acceptor_acc_id = 'ACC-004' if donor_acc_id == 'ACC-003' else 'ACC-003'
+                        shoulder_a = clean_row.copy()
+                        shoulder_b = clean_row.copy()
+                        
+                        if exc_rule and '|' in exc_rule['target_value']:
+                            part_a, part_b = exc_rule['target_value'].strip().split('|')
+                            acc_a, sum_a = part_a.split(':')
+                            acc_b, sum_b = part_b.split(':')
+                            donor_acc_id = acc_a.strip()
+                            acceptor_acc_id = acc_b.strip()
+                            shoulder_a['tr_sum'] = Decimal(sum_a.strip())
+                            shoulder_b['tr_sum'] = Decimal(sum_b.strip())
+                        else:
+                            if exc_rule:
+                                donor_acc_id = exc_rule['target_value'].replace(':MINUS', '').strip()
+                                acceptor_acc_id = 'ACC-004' if donor_acc_id == 'ACC-003' else 'ACC-003'
+                            shoulder_a['tr_sum'] = -raw_sum
+                            shoulder_b['tr_sum'] = raw_sum
+                            
+                        update_balance_logic(shoulder_a, target_acc_id=donor_acc_id, raw_row=row)
+                        update_balance_logic(shoulder_b, target_acc_id=acceptor_acc_id, raw_row=row)
+                        
+                        for shoulder in [shoulder_a, shoulder_b]:
+                            last_used_code += 1
+                            shoulder['code'] = last_used_code
+                            shoulder['tr_id'] = str(last_used_code)
+                            shoulder['flw_030_trid'] = str(original_code)
+                            shoulder.pop('raw_cash_bal', None)
+                            shoulder.pop('raw_pocket_bal', None)
+                            transformed_batch.append(shoulder)
+
+                    else:
+                        # --- ОБЫЧНАЯ СТРОКА ---
+                        raw_sum = Decimal(str(row.get('Сумма *') or 0))
+                        effect = Decimal(str(account_effects.get(type_name, 1)))
+                        clean_row['tr_sum'] = (raw_sum * effect).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                        update_balance_logic(clean_row, target_acc_id=current_acc_id, raw_row=row)
+                        last_used_code += 1
+                        clean_row['code'] = last_used_code
+                        clean_row['tr_id'] = str(last_used_code)
+                        clean_row['flw_030_trid'] = str(original_code)
+                        clean_row.pop('raw_cash_bal', None)
+                        clean_row.pop('raw_pocket_bal', None)
+                        transformed_batch.append(clean_row)
+
+
+                        
+                # --- ЗАГРУЗКА (LOAD) ---
+                if transformed_batch:
+                    target_table = "public.transaction_registry_flw_030_transform"
+                    print(f"Загрузка {len(transformed_batch)} очищенных записей in {target_table}...")
+                    cur.execute(f"TRUNCATE {target_table};")
+                    columns = list(transformed_batch[0].keys())
+                    col_names = ", ".join([f'"{c}"' for c in columns])
+                    placeholders = ", ".join(["%s"] * len(columns))
+                    query = f"INSERT INTO {target_table} ({col_names}) VALUES ({placeholders})"
+                    values_to_insert = [tuple(r.get(c) for c in columns) for r in transformed_batch]
+                    cur.executemany(query, values_to_insert)
+                    conn.commit()
+                    print(f"Успех! В буферную таблицу записано ровно {len(transformed_batch)} строк.")
+                    
+    except Exception as e:
+        print(f"Ошибка в процессе: {e}", file=sys.stderr)
+
+if __name__ == "__main__":
+    run_etl_session()

@@ -1,0 +1,406 @@
+import os
+import sys
+import json
+from datetime import datetime
+from decimal import Decimal
+import psycopg2
+from psycopg2.extras import DictCursor, execute_values
+import pandas as pd
+
+# ====================================================================
+# CONFIGURATION
+# ====================================================================
+TARGET_DIR = r"C:\Users\admin\Desktop\LedgerExportFromiPad4\ETL 447-1269"
+PASSPORT_PATH = os.path.join(TARGET_DIR, "passport_ETL_447-1269.txt")
+
+START_TR_ID = 534
+START_CODE = 447
+END_CODE = 1269
+
+INITIAL_BALANCES = {
+    'ACC-003': Decimal('0.00'),    # Касса
+    'ACC-004': Decimal('-3990.00'), # Карман
+    'ACC-005': Decimal('0.00'),    # Счет 1
+    'ACC-006': Decimal('0.00'),    # Счет 2
+    'ACC-015': Decimal('0.00'),    # Счет OLX
+}
+
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+
+if not DB_PASSWORD:
+    print("[FATAL ERROR] Переменная окружения DB_PASSWORD не найдена!", file=sys.stderr)
+    sys.exit(1)
+
+DB_PARAMS = {
+    "dbname": os.environ.get("DB_NAME", "postgres"),
+    "user": os.environ.get("DB_USER", "postgres"),
+    "password": DB_PASSWORD,
+    "host": os.environ.get("DB_HOST", "localhost"),
+    "port": os.environ.get("DB_PORT", "5432")
+}
+
+def get_db_connection():
+    return psycopg2.connect(**DB_PARAMS)
+
+def run_etl_session():
+    print("=== STARTING MUTATION-READY ETL ENGINE: STAGE 2 ===")
+    
+    try:
+        conn = get_db_connection()
+    except Exception as e:
+        print(f"[FATAL ERROR] Сбой подключения к БД: {e}", file=sys.stderr)
+        sys.exit(1)
+        
+    try:
+        # ------------------------------------------------------------
+        # 1. ЗАГРУЗКА СПРАВОЧНИКОВ И ДИНАМИЧЕСКИХ ПРАВИЛ
+        # ------------------------------------------------------------
+        with conn.cursor(cursor_factory=DictCursor) as cur:
+            cur.execute('SELECT "AccountName", "AccID" FROM public.account_register;')
+            account_map = {row['AccountName'].strip(): row['AccID'].strip() for row in cur.fetchall() if row['AccountName']}
+            
+            cur.execute('SELECT "TypeName", "AccountEffect" FROM public.dict_type;')
+            effect_map = {}
+            for row in cur.fetchall():
+                if row['TypeName'] and row['AccountEffect']:
+                    try: effect_map[row['TypeName'].strip()] = int(row['AccountEffect'])
+                    except ValueError: effect_map[row['TypeName'].strip()] = 0
+
+            # Вычитываем только активные правила мутации
+            cur.execute('SELECT rule_type, source_value, target_value FROM public.etl_transform_rules WHERE is_active = true;')
+            active_rules = cur.fetchall()
+
+        # Разделяем правила по типам для удобства слоя мутации
+        inject_rules = {int(r['source_value']): json.loads(r['target_value']) for r in active_rules if r['rule_type'] == 'INJECT_ROWS'}
+        mutate_rules = {int(r['source_value']): json.loads(r['target_value']) for r in active_rules if r['rule_type'] == 'MUTATE_ROW'}
+
+        # ------------------------------------------------------------
+        # 2. ЭКСТРАКЦИЯ И РАБОТА СЛОЯ МУТАЦИИ (DATA MUTATION LAYER)
+        # ------------------------------------------------------------
+        query = """
+            SELECT * FROM public."transaction_registry FLW_030"
+            WHERE "Код"::integer BETWEEN %s AND %s
+            ORDER BY "Код" ASC NULLS LAST;
+        """
+        raw_df = pd.read_sql_query(query, conn, params=(START_CODE, END_CODE))
+        
+        mutated_records = []
+        
+        # Специальный пре-чекер: если есть инжекция для кода (START_CODE - 1), врезаем её в самый старт потока
+        # В нашем случае: START_CODE = 447, значит ищем инжекцию для 446
+        prior_code = START_CODE - 1
+        if prior_code in inject_rules:
+            for v_row_data in inject_rules[prior_code]:
+                v_row = {'Код': prior_code, 'is_virtual': True}
+                v_row.update(v_row_data)
+                # Копируем базовые метаполя из первой доступной строки, если они не заданы в JSON
+                v_row['Дата'] = v_row_data.get('Дата', raw_df.iloc[0]['Дата'])
+                mutated_records.append(v_row)
+
+        # Основной проход по извлеченным сырым строкам
+        for _, row in raw_df.iterrows():
+            base_code = int(row['Код'])
+            
+            # Создаем копию оригинальной строки
+            working_row = row.to_dict()
+            working_row['is_virtual'] = False
+            
+            # Если для текущей строки есть правило MUTATE_ROW — на лету правим опечатки
+            if base_code in mutate_rules:
+                working_row.update(mutate_rules[base_code])
+                
+            mutated_records.append(working_row)
+            
+            # Проверяем, нужно ли врезать виртуальные строки ПОСЛЕ текущего кода
+            if base_code in inject_rules:
+                for v_row_data in inject_rules[base_code]:
+                    v_row = {'Код': base_code, 'is_virtual': True}
+                    v_row.update(v_row_data)
+                    v_row['Дата'] = v_row_data.get('Дата', working_row['Дата'])
+                    mutated_records.append(v_row)
+
+        # Превращаем модифицированный массив обратно в рабочий DataFrame
+        # Сортировка не требуется, так как массив собран в строго хронологическом порядке
+        working_df = pd.DataFrame(mutated_records)
+        print(f"[INFO] Слой мутации подготовил поток: {len(working_df)} строк (Сырье: {len(raw_df)}).")
+
+        # ------------------------------------------------------------
+        # 3. МАТЕМАТИЧЕСКИЙ КАЛЬКУЛЯТОР И QA СВЕРКА
+        # ------------------------------------------------------------
+        current_balances = INITIAL_BALANCES.copy()
+        current_tr_id = START_TR_ID
+        
+        transform_payload = []
+        qa_errors_payload = []
+        
+        for _, row in working_df.iterrows():
+            source_code = int(row['Код'])
+            
+            # Сумма
+            raw_amount = row.get('Сумма *')
+            amount = Decimal(str(raw_amount)).quantize(Decimal('0.01')) if pd.notnull(raw_amount) else Decimal('0.00')
+            
+            # Маппинг счета в системный AccID
+            raw_acc_name = str(row.get('Счет', '')).strip()
+            account_id = account_map.get(raw_acc_name, "ACC-UNKNOWN")
+            is_unknown = (account_id == "ACC-UNKNOWN")
+            
+            if account_id not in current_balances:
+                current_balances[account_id] = Decimal('0.00')
+                
+            # Знак операции
+            raw_type = str(row.get('Тип', '')).strip()
+            effect = effect_map.get(raw_type, 0)
+            
+            # Вычисление кумулятивного итога по счету
+            current_balances[account_id] += (amount * effect)
+            py_acc_balance = current_balances[account_id]
+            
+            # Форматирование даты ISO
+            raw_date = row.get('Дата')
+            operation_date = None
+            if pd.notnull(raw_date):
+                raw_date_str = str(raw_date).strip()
+                try:
+                    if len(raw_date_str.split('.')[-1]) == 2:
+                        operation_date = datetime.strptime(raw_date_str, "%d.%m.%y").strftime("%Y-%m-%d %H:%M:%S")
+                    else:
+                        operation_date = datetime.strptime(raw_date_str, "%d.%m.%Y").strftime("%Y-%m-%d %H:%M:%S")
+                except ValueError:
+                    operation_date = raw_date_str
+
+            # Сохраняем имя транзакции (для VIEW или отладки, в payload пойдут только нужные поля)
+            transform_payload.append((
+                current_tr_id,  # Сквозной линейный ключ (Уникальный)
+                source_code,    # Исходный код (Преемственный, для виртуальных = 446)
+                operation_date,
+                account_id,
+                float(amount),
+                float(py_acc_balance),
+                is_unknown
+            ))
+            
+            # Экономическая сверка QA (Виртуальные строки пропускаем, сверяем только оригинал)
+            if not row.get('is_virtual'):
+                raw_manual_balance = row.get('Баланс карманных средств *')
+                if pd.notnull(raw_manual_balance):
+                    manual_balance = Decimal(str(raw_manual_balance)).quantize(Decimal('0.01'))
+                    diff_balance = py_acc_balance - manual_balance
+                    
+                    if diff_balance != Decimal('0.00'):
+                        qa_errors_payload.append({
+                            "source_code": source_code,
+                            "account_id": account_id,
+                            "expected_balance": float(py_acc_balance),
+                            "manual_balance": float(manual_balance),
+                            "diff_balance": float(diff_balance)
+                        })
+            
+            current_tr_id += 1 
+
+        # ------------------------------------------------------------
+        # 4. ФИНАЛИЗАЦИЯ: ЗАПИСЬ ДАННЫХ И СОЗДАНИЕ ТАБЛИЦЫ etl_analysis
+        # ------------------------------------------------------------
+        # === ВОЗВРАЩАЕМ УДОБНЫЙ ВЫВОД ТОП-10 В ТЕРМИНАЛ VS ===
+        print("\n=== ОТЧЕТ ЭКОНОМИЧЕСКОЙ СВЕРКИ (QA) ===")
+        if qa_errors_payload:
+            errors_df = pd.DataFrame(qa_errors_payload)
+            print(f"[WARNING] Найдено {len(errors_df)} строк с дельтами баланса.")
+            print("\nТОП-10 НАИБОЛЬШИХ РАСХОЖДЕНИЙ:")
+            print(errors_df.head(10).to_string(index=False))
+            print("-" * 50)
+        else:
+            print("[SUCCESS] Идеальное сведение! Расхождения отсутствуют.")
+
+        with conn.cursor() as cur:
+            # 4.1. Обновляем лог ошибок QA
+            cur.execute("TRUNCATE TABLE public.etl_processing_errors;")
+            if qa_errors_payload:
+                error_insert_query = "INSERT INTO public.etl_processing_errors (source_code, account_id, expected_balance, manual_balance, diff_balance) VALUES %s;"
+                execute_values(cur, error_insert_query, [(e['source_code'], e['account_id'], e['expected_balance'], e['manual_balance'], e['diff_balance']) for e in qa_errors_payload])
+            
+            # 4.2. Обновляем основную таблицу транзита
+            cur.execute("TRUNCATE TABLE public.transaction_registry_flw_030_transform;")
+            transform_insert_query = """
+                INSERT INTO public.transaction_registry_flw_030_transform 
+                (tr_id, source_code, operation_date, account_id, amount, calculated_balance, is_unknown_account)
+                VALUES %s;
+            """
+            execute_values(cur, transform_insert_query, transform_payload)
+
+            # 4.3. СОЗДАНИЕ И НАПОЛНЕНИЕ ТАБЛИЦЫ etl_analysis (Для DBeaver)
+            print("Формирование аналитической таблицы etl_analysis...")
+            cur.execute("DROP TABLE IF EXISTS public.etl_analysis CASCADE;")
+            cur.execute("""
+                CREATE TABLE public.etl_analysis AS
+                SELECT 
+                    t.tr_id as "ID",
+                    t.source_code,
+                    COALESCE(raw."Наименование", '=== ВИРТУАЛЬНАЯ СТРОКА ИНЖЕКЦИИ ===') as "name",
+                    -- 1. Отображаем "Корректировка", если для этого кода было массовое или точечное правило мутации типа
+                    CASE 
+                        WHEN r_type.rule_id IS NOT NULL THEN 'Корректировка'
+                        ELSE raw."Тип"
+                    END as "type_name",
+                    t.account_id,
+                    CAST(t.operation_date AS DATE) as "operation_date",
+                    t.amount,
+                    t.calculated_balance,
+                    -- 2. Если баланс мутировал в правилах, показываем измененное ожидание, иначе - сырое
+                    CASE 
+                        WHEN r_bal.rule_id IS NOT NULL THEN (r_bal.target_value::json->>'Баланс карманных средств *')::numeric
+                        ELSE raw."Баланс карманных средств *"
+                    END as "manual_balance",
+                    COALESCE(err.diff_balance, 0.00) as "diff_balance"
+                FROM public.transaction_registry_flw_030_transform t
+                LEFT JOIN public."transaction_registry FLW_030" raw 
+                    ON t.source_code = raw."Код"::integer
+                LEFT JOIN public.etl_processing_errors err 
+                    ON t.source_code = err.source_code AND t.account_id = err.account_id
+                -- Подтягиваем правила мутации типов для корректного отображения витрины
+                LEFT JOIN public.etl_transform_rules r_type 
+                    ON t.source_code = r_type.source_value::integer 
+                    AND r_type.rule_type = 'MUTATE_ROW' 
+                    AND r_type.target_value LIKE '%"Тип"%'
+                -- Исправлено: Добавлен потерянный LEFT JOIN для мутации балансов
+                LEFT JOIN public.etl_transform_rules r_bal 
+                    ON t.source_code = r_bal.source_value::integer 
+                    AND r_bal.rule_type = 'MUTATE_ROW' 
+                    AND r_bal.target_value LIKE '%"Баланс карманных средств *_"'
+                ORDER BY t.tr_id ASC;
+
+
+            """)
+            
+            conn.commit() # Фиксируем все изменения (транзит + анализ)
+            print("[SUCCESS] Таблица etl_analysis готова.")
+            # ------------------------------------------------------------
+            # 4.3. СОЗДАНИЕ И НАПОЛНЕНИЕ РАСШИРЕННОЙ ТАБЛИЦЫ ЭТАЛОНА STAGE 2
+            # ------------------------------------------------------------
+            print("Формирование расширенной таблицы эталона STAGE 2 с жестким контролем регистра JSON...")
+            cur.execute("DROP TABLE IF EXISTS public.transaction_registry_flw_030_etl_stage2_447_1269 CASCADE;")
+            cur.execute("""
+                CREATE TABLE public.transaction_registry_flw_030_etl_stage2_447_1269 (
+                    code int4 NOT NULL,
+                    legacy_code int4 NULL,
+                    transaction_name text NULL,
+                    operation_date date NULL,
+                    registration_date date NULL,
+                    ent_id varchar(50) NULL,
+                    tr_cat_id varchar(50) NULL,
+                    resp_id varchar(50) NULL,
+                    contragent_from_id varchar(50) NULL,
+                    contragent_to_id varchar(50) NULL,
+                    acc_id varchar(50) NULL,
+                    tr_type_id varchar(50) NULL,
+                    tr_sum numeric(15, 2) NULL,
+                    tr_currency varchar(50) NULL,
+                    tr_id int4 NULL,
+                    calculated_balance numeric(15, 2) NULL,
+                    manual_balance numeric(15, 2) NULL,
+                    diff_balance numeric(15, 2) NULL,
+                    CONSTRAINT transaction_registry_flw_030_etl_stage2_447_1269_pkey PRIMARY KEY (code)
+                );
+            """)
+            cur.execute("""
+                INSERT INTO public.transaction_registry_flw_030_etl_stage2_447_1269 (
+                    code, legacy_code, transaction_name, operation_date, registration_date,
+                    ent_id, tr_cat_id, resp_id, contragent_from_id, contragent_to_id,
+                    acc_id, tr_type_id, tr_sum, tr_currency, tr_id,
+                    calculated_balance, manual_balance, diff_balance
+                )
+                SELECT DISTINCT ON (t.tr_id)
+                    t.tr_id AS code,
+                    t.source_code AS legacy_code,
+                    COALESCE(inj."Наименование", raw."Наименование", '=== ВИРТУАЛЬНАЯ СТРОКА ИНЖЕКЦИИ ===') AS transaction_name,
+                    t.operation_date::date AS operation_date,
+                    NULL::date AS registration_date,
+                    raw."Проект"::varchar AS ent_id,
+                    raw."Категория" AS tr_cat_id,
+                    raw."Ответственный" AS resp_id,
+                    raw."Контрагент донор"::varchar AS contragent_from_id,
+                    raw."Контрагент акцептор"::varchar AS contragent_to_id,
+                    t.account_id AS acc_id,
+                    -- Динамический маппинг типов транзакций
+                    dt_final."TypeID" AS tr_type_id,
+                    t.amount::numeric(15,2) AS tr_sum,
+                    'KZT' AS tr_currency,
+                    NULL::int4 AS tr_id,
+                    t.calculated_balance::numeric(15,2) AS calculated_balance,
+                    COALESCE(inj."Баланс карманных средств *", raw."Баланс карманных средств *")::numeric(15,2) AS manual_balance,
+                    COALESCE(err.diff_balance, 0.00)::numeric(15,2) AS diff_balance
+                FROM public.transaction_registry_flw_030_transform t
+                LEFT JOIN (
+                    SELECT DISTINCT ON ("Код") 
+                        "Код", "Наименование", "Проект", "Категория", "Ответственный", 
+                        "Контрагент донор", "Контрагент акцептор", "Тип", "Баланс карманных средств *"
+                    FROM public."transaction_registry FLW_030"
+                    ORDER BY "Код"
+                ) raw ON t.source_code = raw."Код"::integer
+                LEFT JOIN public.etl_processing_errors err
+                    ON t.source_code = err.source_code AND t.account_id = err.account_id
+                LEFT JOIN public.etl_transform_rules r_mutate 
+                ON t.source_code = r_mutate.source_value::integer 
+                AND r_mutate.rule_type = 'MUTATE_ROW' 
+                AND r_mutate.is_active = true
+                AND r_mutate.target_value LIKE '%"Тип"%'
+                LEFT JOIN public.etl_transform_rules r_inject
+                ON t.source_code = r_inject.source_value::integer
+                AND r_inject.rule_type = 'INJECT_ROWS'
+                AND r_inject.is_active = true
+                -- ИСПРАВЛЕНО: Явное экранирование заглавных букв кириллицы для ключей JSON-массива
+                LEFT JOIN LATERAL json_to_recordset(r_inject.target_value::json) AS inj(
+                    "Наименование" text, 
+                    "Счет" varchar(50), 
+                    "Тип" varchar(50), 
+                    "Сумма *" numeric, 
+                    "Баланс карманных средств *" numeric
+                ) ON (
+                    CASE 
+                        WHEN inj."Счет" = 'Карманные средства' THEN 'ACC-004'
+                        WHEN inj."Счет" = 'Счет 1' THEN 'ACC-005'
+                        ELSE 'UNKNOWN'
+                    END = t.account_id
+                )
+                LEFT JOIN public.dict_type dt_final 
+                ON dt_final."TypeName" = COALESCE(
+                        inj."Тип",                                     -- 1 приоритет: из инжекции
+                        (r_mutate.target_value::json->>'Тип'),        -- 2 приоритет: из мутации
+                        raw."Тип"                                     -- 3 приоритет: из Numbers
+                    )
+                WHERE t.tr_id BETWEEN 534 AND 1362
+                ORDER BY t.tr_id ASC;
+            """)
+            conn.commit()
+            print("[SUCCESS] Расширенная таблица эталона STAGE 2 успешно сформирована со строгим маппингом JSON!")
+
+
+        generate_passport(len(transform_payload), current_tr_id - 1, current_balances)
+
+    except Exception as e:
+        conn.rollback()
+        print(f"[FATAL ERROR] Критическая ошибка конвейера: {e}", file=sys.stderr)
+        sys.exit(1)
+    finally:
+        conn.close()
+
+def generate_passport(total_rows, max_tr_id, final_balances):
+    lines = [
+        "=== ETL STAGE 2 PASSPORT ===",
+        f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        f"Processed Rows: {total_rows}",
+        f"Target System ID Range: {START_TR_ID} - {max_tr_id}",
+        "",
+        "=== FINAL BALANCES (REVISION @ 1269) ==="
+    ]
+    for acc_id, bal in sorted(final_balances.items()):
+        lines.append(f"{acc_id}: {bal:,.2f} KZT")
+    lines.append("============================")
+    
+    os.makedirs(TARGET_DIR, exist_ok=True)
+    with open(PASSPORT_PATH, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
+    print(f"[PASSPORT] Технический контракт сохранен в: {PASSPORT_PATH}")
+
+if __name__ == "__main__":
+    run_etl_session()

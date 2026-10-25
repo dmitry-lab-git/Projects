@@ -1,0 +1,46 @@
+ WITH counts AS (
+         SELECT ( SELECT count(*) AS count
+                   FROM "transaction_registry FLW_036") AS flw_036_cnt,
+            ( SELECT count(*) AS count
+                   FROM "transaction_registry FLW_037") AS flw_037_cnt,
+            ( SELECT count(*) AS count
+                   FROM tx_register) AS tx_register_cnt,
+            ( SELECT count(*) AS count
+                   FROM ledger) AS ledger_cnt
+        ), sums AS (
+         SELECT sum(ledger.tr_sum) AS total_tr_sum_ledger,
+            sum(ledger.balance_diff) AS total_balance_diff
+           FROM ledger
+        ), transfers AS (
+         SELECT sum(ledger.tr_sum) AS transfer_sum_check
+           FROM ledger
+          WHERE ledger.tr_type_id::text = 'TPE-004'::text
+        )
+ SELECT 'Количество строк (FLW_036 / FLW_037 / tx_register / ledger)'::character varying(100) AS check_name,
+    format('%s / %s / %s / %s'::text, counts.flw_036_cnt, counts.flw_037_cnt, counts.tx_register_cnt, counts.ledger_cnt)::character varying(100) AS result,
+        CASE
+            WHEN counts.tx_register_cnt = counts.ledger_cnt THEN 'OK'::text
+            ELSE 'MISMATCH'::text
+        END::character varying(50) AS status
+   FROM counts
+UNION ALL
+ SELECT 'Сумма поля balance_diff (должна быть 0)'::character varying AS check_name,
+    sums.total_balance_diff::text AS result,
+        CASE
+            WHEN sums.total_balance_diff = 0 THEN 'OK'::text
+            ELSE 'ERROR'::text
+        END AS status
+   FROM sums
+UNION ALL
+ SELECT 'Глобальная сумма tr_sum в ledger'::character varying AS check_name,
+    sums.total_tr_sum_ledger::text AS result,
+    'INFO'::character varying AS status
+   FROM sums
+UNION ALL
+ SELECT 'Сверка внутренних переносов (TPE-004) - сумма должна быть 0'::character varying AS check_name,
+    COALESCE(transfers.transfer_sum_check, 0::bigint)::text AS result,
+        CASE
+            WHEN COALESCE(transfers.transfer_sum_check, 0::bigint) = 0 THEN 'OK'::text
+            ELSE 'UNBALANCED'::text
+        END AS status
+   FROM transfers;

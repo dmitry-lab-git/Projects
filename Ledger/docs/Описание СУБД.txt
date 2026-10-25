@@ -1,0 +1,120 @@
+================================================================================
+  РЕЕСТР КОНФИГУРАЦИОННЫХ ИЗМЕНЕНИЙ И ОБНОВЛЕНИЙ СУБД (UVR) 08.07.2026 21:26
+================================================================================
+
+
+1   Legacy Ledger Structure
+    - Код (UVR / VER): UVR-001 / VER-002
+    - Дата:            2026-05-15
+    - Описание:        Реестр снимков баланса. Переход на ядро транзакций.
+    - Компоненты:      \LedgerExportFromiPad4\Raw Data\zip\csv: FLW-036, FLW-037
+
+2   PostgreSQL Migration & ABS Setup
+    - Код (UVR / VER): UVR-002 / VER-003
+    - Дата:            2026-06-13
+    - Описание:        Переход из Numbers в PostgreSQL. ABS защита.
+    - Компоненты:      \LedgerExportFromiPad4\Raw Data\zip\csv: FLW-036, FLW-037, FLW-030
+
+3   Ledger Calculation Logic Update
+    - Код (UVR / VER): UVR-003 / VER-003
+    - Дата:            2026-06-13
+    - Описание:        Приоритет математического знака операции. balance(i+1) = balance(i)+sum(i)*AccountEffect(TypeID);
+    - Компоненты:      function: refresh_ledger, function: refresh_account_state_report, table: account_state_report
+
+4   ETL: Integration 1-446
+    - Код (UVR / VER): UVR-004 / VER-003
+    - Дата:            2026-06-16
+    - Описание:        Первичная загрузка среза 1-446 (Python/ETL).
+    - Компоненты:      FLW-030, etl_process.py, \FLW30 ETL 1-1728\Success stage1 ETL 1-446 16.06.26
+
+5   ETL: Integration 447-1269
+    - Код (UVR / VER): UVR-005 / VER-003
+    - Дата:            2026-06-18
+    - Описание:        Загрузка и нормализация 447-1269 (Python/ETL).
+    - Компоненты:      FLW-030, etl_process.py, archive: \FLW30 ETL 1-1728\Success stage2 ETL 447-1269 18.06.26
+
+6   Data Fusion: Full Merge
+    - Код (UVR / VER): UVR-006 / VER-003
+    - Дата:            2026-06-19
+    - Описание:        Полное объединение 1-1728. Финализация миграции. Данные верифицированы, соответствие 100%
+    - Компоненты:      db://public.table/tx_register
+
+7   Ledger & Reporting Logic
+    - Код (UVR / VER): UVR-007 / VER-003
+    - Дата:            2026-06-19
+    - Описание:        Реализация ядра верифицированного финансового учета.
+    - Компоненты:      db://public.table/account_state_report, tx_register, ledger; db://public.func/refresh_ledger,refresh_account_state_report, archive: FLW30 ETL 1-1728\Final Common ETL
+
+8   Infrastructure: DCS Service
+    - Код (UVR / VER): UVR-008 / VER-003
+    - Дата:            2026-06-20
+    - Описание:        Архитектурный план Data Collect Client Service.
+    - Компоненты:      \LedgerExportFromiPad4\Data Collect Client Service
+
+9   ETL: Final Migration 1-1756
+    - Код (UVR / VER): UVR-009 / VER-003
+    - Дата:            2026-06-23
+    - Описание:        Завершение работы базового ETL-конвейера. Импорт исторических пакетов данных из Numbers через CSV.
+    - Компоненты:      files: FLW-036, FLW-037; script: etl_process.py
+
+10  Core Reporting & Discrepancy Engine
+    - Код (UVR / VER): UVR-010 / VER-003
+    - Дата:            2026-06-25
+    - Описание:        Развертывание функций расчетов и автоматизированного контроля актов сверки баланса. Категоризация расхождений сальдо.
+    - Компоненты:      functions: public.refresh_ledger, public.refresh_account_state_report
+
+11  Lightweight Analytics Layer
+    - Код (UVR / VER): UVR-011 / VER-003
+    - Дата:            2026-06-27
+    - Описание:        Разработка и запуск облегченной витрины данных для оперативного контроля исполнения конвейера функций и балансов.
+    - Компоненты:      view: reports.v_active_account_report
+
+12  Core DDL Refactoring & Strict UUID Shift
+    - Код (UVR / VER): UVR-012 / VER-003
+    - Дата:            2026-06-29
+    - Описание:        Глобальный переход реестра транзакций на UUID-хранение. Ввод первых 5 транзакций.
+    - Компоненты:      table: public.transactions
+
+13  Audit Architecture Deployment
+    - Код (UVR / VER): UVR-013 / VER-003
+    - Дата:            2026-07-01
+    - Описание:        Выделение обособленной схемы .audit для изоляции процессов верификации. Создание расширенного зеркала реестра.
+    - Компоненты:      schema: audit; table: audit.transactions_fullfields; indexes: idx_audit_status, idx_fullfields_code, idx_transactions_fullfields_keywords
+
+14  AI Validation Engine (AIVE) Integration
+    - Код (UVR / VER): UVR-014 / VER-003
+    - Дата:            2026-07-03
+    - Описание:        Запуск интеллектуального конвейера на базе Gemini API. Внедрение прецедентного кэширования ai_notes.
+    - Компоненты:      script:aive_initial_audit.py, script:secure_api_call, table: aive_request_log
+
+15  Multi-Stage AI Operational Auditing
+    - Код (UVR / VER): UVR-015 / VER-003
+    - Дата:            2026-07-04
+    - Описание:        Проведение 4-этапного автоматического аудита 1858 транзакций. Сбор статистики, фильтрация аномалий (trust_score < 8).
+    - Компоненты:      tables: audit.audit_process_queue, audit.staging_audit_results; function: audit.sync_transactions_to_fullfields
+
+16  Interactive Manual Review Pipeline
+    - Код (UVR / VER): UVR-016 / VER-003
+    - Дата:            2026-07-06
+    - Описание:        Запуск консольного интерактивного скрипта для разбора 247 инцидентов оператором. Фиксация 57 точечных семантических правок.
+    - Компоненты:      script: manual_review.py; file: updates.txt; table: audit.staging_audit_results
+
+17  Reflex PWA Interface Deployment
+    - Код (UVR / VER): UVR-017 / VER-003
+    - Дата:            2026-07-07
+    - Описание:        Развертывание интерфейса PWA на Reflex. Ввод snapshots. Интеграция форм ввода со словарями dicts, фиксация ввода первых 13 транзакций.
+    - Компоненты:      app: Reflex PWA; table: audit.staging_transactions; procedure: post_reviewed_transactions (deprecated)
+
+18  Database Optimization & Clean State
+    - Код (UVR / VER): UVR-018 / VER-003
+    - Дата:            2026-07-08
+    - Описание:        Архитектурная зачистка структуры базы данных. Физическое удаление порядка 20 устаревших временных таблиц, сбор метаданных.
+    - Компоненты:      procedure: VACUUM ANALYZE; path: C:\Users\admin\Desktop\Ledger\db_dump_files
+
+19  Git Initial Commit & Baseline Snapshot
+    - Код (UVR / VER): UVR-019 / VER-003
+    - Дата:            2026-07-08
+    - Описание:        Инициализация локального Git-репозитория и выполнение первого коммита. Фиксация базового контрольного состояния исходного кода, конфигурационных файлов и DDL-структуры СУБД.
+    - Компоненты:      repository: git init; commit: "Initial commit. Baseline snapshot of VER-003"; files: .gitignore, manual_review.py, schema_ddl.sql
+
+================================================================================

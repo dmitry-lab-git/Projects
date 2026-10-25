@@ -1,0 +1,6 @@
+INSERT INTO medicine.intakes (id, intake_date, supplement_id, amount, created_at) VALUES
+
+-- Приемы за 17 октября 2026
+(gen_random_uuid(), '2026-10-17', '874bd2ee-2716-4e3f-8c1a-73d4ab7fd0eb', 3, '2026-10-17 23:49:53.443 +0500'),
+(gen_random_uuid(), '2026-10-17', 'e06f8e43-3024-43ea-b297-1837dfd6f7bc', 3, '2026-10-17 23:49:51.083 +0500'),
+(gen_random_uuid(), '2026-10-17', 'a4b61ef9-2dd2-42d9-8f97-c0251efcffca', 3, '2026-10-17 23:49:45.402 +0500');

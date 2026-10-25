@@ -1,0 +1,27 @@
+"id";"entity_type";"code";"name";"created_at"
+"1b324fdc-0f78-421d-8554-56addf0f3dc2";accounts;CLOSED;Закрыт;2026-06-29 18:29:20.010 +0500
+"45db4fe9-bba8-488d-8c2a-b42bd212b4df";accounts;ACTIVE;Активен;2026-06-29 18:29:20.010 +0500
+"5d33cc26-cd37-4089-9694-f89dfe049524";accounts;ARCHIVED;Архивный;2026-06-29 18:29:20.010 +0500
+"92c21d3a-1fd9-4d44-8b81-b75930cf989b";accounts;DISPOSED;Ликвидирован;2026-06-29 18:29:20.010 +0500
+"74f9075b-b259-40f5-ab32-868c91fa8a24";transactions;NEW;Новый;2026-06-29 18:29:20.010 +0500
+"090e5822-71d7-49fc-a861-dee7fb30787a";transactions;PROCESSED;Обработан;2026-06-29 18:29:20.010 +0500
+"0a993949-4300-454a-8d74-dd44838886eb";transactions;NEED_REWIEW;Требует проверки;2026-06-29 18:29:20.010 +0500
+d0eeb787-4d43-425a-a4eb-046a66aa31a4;transactions;REWIEWED;Проверен;2026-06-29 18:29:20.010 +0500
+"65200f92-de71-40f9-a4ed-dcb7a895d838";transactions;POSTED;Проведен;2026-06-29 18:29:20.010 +0500
+"7f6d044d-5415-48b8-ba39-37698e0cbcf2";transactions;PENDING_POSTING;Ожидает проведения;2026-06-29 18:29:20.010 +0500
+"23e95021-f9ca-40cf-a98f-9f3dde31064a";transactions;REPOSTED;Перепроведен;2026-06-29 18:29:20.010 +0500
+"31822b7e-cdec-4799-a380-4c9a44330893";dict_types;ACTIVE;Активен;2026-06-29 18:29:20.010 +0500
+e757f133-2dd4-451a-b48b-a7e5ce910a40;dict_types;ARCHIVED;Архивный;2026-06-29 18:29:20.010 +0500
+c46600b7-d268-444d-a4c8-116b223e9a4f;entities;ACTIVE;Активен;2026-06-29 18:29:20.010 +0500
+ddac699b-400f-49e5-98b0-c9aa19117fc9;entities;ARCHIVED;Архивный;2026-06-29 18:29:20.010 +0500
+d59f9504-0c63-4708-9086-cb9f9482801b;responsibles;ACTIVE;Активен;2026-06-29 18:29:20.010 +0500
+f9f908b0-a04d-4e2c-b095-88856700c3f0;responsibles;ARCHIVED;Архивный;2026-06-29 18:29:20.010 +0500
+"1e604e11-8e44-4da3-beb2-369a0113ffdf";addresses;ACTIVE;Активен;2026-06-29 18:29:20.010 +0500
+"03dd23a8-8340-4129-9bc6-232867d2acc0";addresses;ARCHIVED;Архивный;2026-06-29 18:29:20.010 +0500
+f3761bdb-9cb3-46ba-a9e4-dbabafb096c5;contragents;ACTIVE;Активен;2026-06-29 18:49:53.674 +0500
+c137a58c-0bef-4f42-b8c8-c29fa967072d;dict_categories;ACTIVE;Активен;2026-06-29 18:52:25.497 +0500
+cb3a5374-e6f7-4f56-a7b0-a8d28963907d;dict_ledger_versions;ACTIVE;Активен;2026-06-29 18:54:30.374 +0500
+af1570d8-63e1-42bf-b960-1b985bb350d4;audit_status;pending_re_audit;В очереди на повторный анализ;2026-07-02 10:41:02.202 +0500
+"3a17b3b6-54d0-4676-86e7-9f7fd8d21f10";audit_status;processing_re_audit;Отправлено в API ИИ;2026-07-02 10:41:02.202 +0500
+e192994f-dc22-4b32-af6a-00656a1deb65;audit_status;manual_review;Ожидает ручной проверки оператором;2026-07-02 10:41:02.202 +0500
+"2c64d9db-f3d9-4392-84e0-a89d4a31f87b";audit_status;processed;Ручная проверка завершена;2026-07-02 10:41:02.202 +0500
