@@ -11,9 +11,15 @@ from .ui.pages.dictionaries import dictionaries_page
 from .ui.pages.projects import projects_page
 from .ui.pages.project_editor import project_editor_page
 
-# === ЕДИНЫЙ ПОТОК КРОН (все расписание в src/services/cron/config.py) ===
-from src.services.cron.scheduler import setup_cron
-setup_cron()
+from apscheduler.schedulers.background import BackgroundScheduler
+from src.services.cron.jobs.readme_updater import update_readme_metrics
+import atexit
 
-# Инициализация приложения
+# ---- CRON (singleton чтобы не дублировался) ----
+_scheduler = BackgroundScheduler(daemon=True)
+_scheduler.add_job(update_readme_metrics, 'cron', hour=0, minute=0, id="readme_metrics_daily", replace_existing=True)
+_scheduler.start()
+atexit.register(lambda: _scheduler.shutdown())
+
+# ---- APP (ЭТО ОБЯЗАТЕЛЬНО) ----
 app = rx.App()

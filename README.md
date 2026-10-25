@@ -1,17 +1,19 @@
 <!-- LEDGER_METRICS_START -->
-## 📊 Ledger SystemMetrics (auto-updated: 25.10.2026 19:54:21)
+## 📊 Ledger SystemMetrics (auto-updated: 25.10.2026 20:14:24)
 
-| Метрика | Значение | Описание |
-|---------|----------|----------|
-| **Текущее количество транзакций** | **2136** | `public.transactions` |
-| **Акты сверки счетов** | **146** | `public.acc_balance_snapshot_register` |
-| **Верифицированные состояния** | **6** | `reports.system_verification_log` с 13.10.2026 |
-| **Поток PWA Staging** | **278** | `audit.staging_transactions` |
+| Metric | Value | Description |
+|--------|-------|-------------|
+| **Current transaction count** | **2136** | `public.transactions` |
+| **Account reconciliation statements** | **146** | `public.acc_balance_snapshot_register` |
+| **Verified states** | **6** | `reports.system_verification_log` since 13.10.2026 |
+| **PWA Staging stream** | **278** | `audit.staging_transactions` |
 
-> Формула баланса: `balance(i+1) = balance(i) + sum(i) * AccountEffect(TypeID)`
+> Balance formula: `balance(i+1) = balance(i) + sum(i) * AccountEffect(TypeID)`
 
-_Обновляется ежедневно в 00:00 (Павлодар, Астана) через APScheduler (Reflex PWA backend)_
+_Updated daily at 00:00 (Pavlodar, Astana) via APScheduler (Reflex PWA backend)_
 <!-- LEDGER_METRICS_END -->
+
+---
 
 ---
 

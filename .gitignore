@@ -51,3 +51,4 @@ rclone.exe
 !db/ledger/
 !db/ledger/**
 !db/dump.sh
+create_issues*.sh

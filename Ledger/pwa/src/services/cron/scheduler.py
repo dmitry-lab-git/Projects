@@ -1,4 +1,3 @@
-cat > src/services/cron/scheduler.py <<'PY'
 import atexit
 import logging
 import subprocess
@@ -64,4 +63,3 @@ def run_bash_job(job_name: str):
     script_path = f"{MAIN_BACKUP_DIR}/{job_name}.sh"
     logger.info(f"Running bash job: {script_path}")
     subprocess.run(["bash", script_path], check=False)
-PY
