@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict BflEUCfPHlEVa3O4uwREQLbkoD3HWZNygGayJrdsvxCIXAl9C0UETTGlgWnf3A2
+\restrict 3ubpfpp3yWJbeufZpcDrV9YBwbGpd93DPotdSLa1TItwZH51pbFN73cyLv6o6T2
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -61,5 +61,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE projects.metadata TO reflex_app_user;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict BflEUCfPHlEVa3O4uwREQLbkoD3HWZNygGayJrdsvxCIXAl9C0UETTGlgWnf3A2
+\unrestrict 3ubpfpp3yWJbeufZpcDrV9YBwbGpd93DPotdSLa1TItwZH51pbFN73cyLv6o6T2
 

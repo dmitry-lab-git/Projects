@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict S0kdXUojZvmpMuKNG88byWhUUM9NkcpFGcmibV8jIIi0eV4fPzM9VB2ULCWQXha
+\restrict gJuPfMmFddesVvovWGkJWrRgnnZAHVcTtWJd1RztiWtQ64Ri3CF2YdPouYYDtuo
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -117,5 +117,5 @@ GRANT SELECT,USAGE ON SEQUENCE dicts.legal_entities_code_seq TO reflex_app_user;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict S0kdXUojZvmpMuKNG88byWhUUM9NkcpFGcmibV8jIIi0eV4fPzM9VB2ULCWQXha
+\unrestrict gJuPfMmFddesVvovWGkJWrRgnnZAHVcTtWJd1RztiWtQ64Ri3CF2YdPouYYDtuo
 

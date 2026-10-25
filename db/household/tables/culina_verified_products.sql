@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict iJFWfdbjbW0VkuS3Dt6bWadajaeQ79M4ImYhpIJTA2R7PdLTIfvHdblVGEcRkAv
+\restrict QxSfjmyNsQi5ietUUz483O6fHtm09FC6Zu1I554pmefgNVOO88RTYbe4eqzXjKs
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -71,5 +71,5 @@ ALTER TABLE ONLY culina.verified_products
 -- PostgreSQL database dump complete
 --
 
-\unrestrict iJFWfdbjbW0VkuS3Dt6bWadajaeQ79M4ImYhpIJTA2R7PdLTIfvHdblVGEcRkAv
+\unrestrict QxSfjmyNsQi5ietUUz483O6fHtm09FC6Zu1I554pmefgNVOO88RTYbe4eqzXjKs
 

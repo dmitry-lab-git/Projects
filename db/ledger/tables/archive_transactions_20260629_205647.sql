@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 5Qv2eJZTQO2UrZhQt7mZtvx8e1RjLgOlJqIEO1Rn9LKPLr7tTSfRPtv5I3Lj0fS
+\restrict Xhie4IOetI84pylpU6Lun1qhfl742XgrPZCrYNOydD1qSlCabXCcwqFMRGD8dfa
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -56,5 +56,5 @@ CREATE TABLE archive.transactions_20260629_205647 (
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 5Qv2eJZTQO2UrZhQt7mZtvx8e1RjLgOlJqIEO1Rn9LKPLr7tTSfRPtv5I3Lj0fS
+\unrestrict Xhie4IOetI84pylpU6Lun1qhfl742XgrPZCrYNOydD1qSlCabXCcwqFMRGD8dfa
 

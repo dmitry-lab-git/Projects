@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 3PotNIJwZiorn1XabSdXeQD1BU6zhvqtT9vxI9HhE67A9DWraq4zDHh4TbqxbuX
+\restrict d6GUWTGf3S5kTxhGMdz5gd8Fz0nkGfSHe9CAYfBebemucVBFs4McNHh0ffnEYMO
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -48,5 +48,5 @@ CREATE TABLE texere.raw_transactions (
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 3PotNIJwZiorn1XabSdXeQD1BU6zhvqtT9vxI9HhE67A9DWraq4zDHh4TbqxbuX
+\unrestrict d6GUWTGf3S5kTxhGMdz5gd8Fz0nkGfSHe9CAYfBebemucVBFs4McNHh0ffnEYMO
 

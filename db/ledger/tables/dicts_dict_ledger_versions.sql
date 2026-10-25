@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 9tNApmjAQcg73GBhRSchNmmZcEUjty0nNKEXGOsyOglkYO2WiznYHuQQ2ho8txH
+\restrict 3l2vVCig9UZSAQXSG23M7iCiFWFCxZBu1MDe5R4JzG0JdbLSFCQWIBpDT6f3BQ9
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -95,5 +95,5 @@ GRANT SELECT,USAGE ON SEQUENCE dicts.dict_ledger_versions_version_id_seq TO refl
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 9tNApmjAQcg73GBhRSchNmmZcEUjty0nNKEXGOsyOglkYO2WiznYHuQQ2ho8txH
+\unrestrict 3l2vVCig9UZSAQXSG23M7iCiFWFCxZBu1MDe5R4JzG0JdbLSFCQWIBpDT6f3BQ9
 

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict LhMLL4BVtoaENdyxSDhdEvlP5cpmaz1IcXwcjvg6EExn70zNoIhcfAVDir1DehR
+\restrict jiRC5R0333D6XQ59INSRb4j3hUEqC8d9AuGs0lXZHQUR6cd09Ifiku00XBHXsTg
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -43,5 +43,5 @@ CREATE TABLE archive.acc_balance_snapshot_register_20260629_205647 (
 -- PostgreSQL database dump complete
 --
 
-\unrestrict LhMLL4BVtoaENdyxSDhdEvlP5cpmaz1IcXwcjvg6EExn70zNoIhcfAVDir1DehR
+\unrestrict jiRC5R0333D6XQ59INSRb4j3hUEqC8d9AuGs0lXZHQUR6cd09Ifiku00XBHXsTg
 

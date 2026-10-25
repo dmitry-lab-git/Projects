@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 7jtYunjH6MxsAYCRQyDrHXgcINHf3ycyuVr3BrXzHAzG0IVcOk9PaxnDcKT9U8W
+\restrict lHc1DhHSDV2W1qJpWYLFDZ4Xm2WNjnr0oym5J4GnRS230Q9OpIJMZVO2K0jt1qQ
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -70,5 +70,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE dicts.dict_statuses TO reflex_app_use
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 7jtYunjH6MxsAYCRQyDrHXgcINHf3ycyuVr3BrXzHAzG0IVcOk9PaxnDcKT9U8W
+\unrestrict lHc1DhHSDV2W1qJpWYLFDZ4Xm2WNjnr0oym5J4GnRS230Q9OpIJMZVO2K0jt1qQ
 

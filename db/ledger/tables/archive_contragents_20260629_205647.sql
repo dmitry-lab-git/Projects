@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 7UXKioXekHvTUd5seYftVGRk0hqEKFOkJFd0cddmIRho8nz5fkLu0ffAhT3b2BI
+\restrict 3ga98S5rxNbLrnFKfKKKOyTpmWS5HZjpQRwIc4mnqXIhPfftwSaI2UAIVy4dacJ
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -46,5 +46,5 @@ CREATE TABLE archive.contragents_20260629_205647 (
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 7UXKioXekHvTUd5seYftVGRk0hqEKFOkJFd0cddmIRho8nz5fkLu0ffAhT3b2BI
+\unrestrict 3ga98S5rxNbLrnFKfKKKOyTpmWS5HZjpQRwIc4mnqXIhPfftwSaI2UAIVy4dacJ
 

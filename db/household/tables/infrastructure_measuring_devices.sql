@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict wuEo3PMXZFVnut2AOfV85ZoXLNjdNfqD1aBtjf6gO6vfHKHYgN8NO75nnxjcJcW
+\restrict EnHcavfI3ir0DeRgn9SX4Sz5rPaieRO9hnkS0T19axONeOJLTLq9zB3BDQW8qo2
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -56,5 +56,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE infrastructure.measuring_devices TO r
 -- PostgreSQL database dump complete
 --
 
-\unrestrict wuEo3PMXZFVnut2AOfV85ZoXLNjdNfqD1aBtjf6gO6vfHKHYgN8NO75nnxjcJcW
+\unrestrict EnHcavfI3ir0DeRgn9SX4Sz5rPaieRO9hnkS0T19axONeOJLTLq9zB3BDQW8qo2
 

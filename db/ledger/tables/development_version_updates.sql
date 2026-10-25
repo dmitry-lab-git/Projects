@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 3KaNkOZH8hN64x5HwLktnu3eqxihivXFR8ZoLucmSKLXPfW3UYe3kdrOu7VrEOP
+\restrict gSGYrnbhFKBbWj8nBoeIV5XRbexzcojWzQoyQ9cXeQdkogwhoC21mJPPoWcjc6H
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -64,5 +64,5 @@ CREATE TRIGGER trg_version_updates_insert BEFORE INSERT ON development.version_u
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 3KaNkOZH8hN64x5HwLktnu3eqxihivXFR8ZoLucmSKLXPfW3UYe3kdrOu7VrEOP
+\unrestrict gSGYrnbhFKBbWj8nBoeIV5XRbexzcojWzQoyQ9cXeQdkogwhoC21mJPPoWcjc6H
 

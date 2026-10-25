@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict GdhgKPf3kY9R1YEnvOLTV13Uncnf4hWNb5S20pNQZ9Hc4MIK8Bpgt0M09LLqCRv
+\restrict Jg8h5AOxNPr7jb4LXYN7HmeMyDJPzT1F3zSQRLpCfvqYlqGNyjTjsbsi0PnESt9
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -92,5 +92,5 @@ CREATE INDEX idx_materials_inv_type_name ON texere.materials_inventory USING btr
 -- PostgreSQL database dump complete
 --
 
-\unrestrict GdhgKPf3kY9R1YEnvOLTV13Uncnf4hWNb5S20pNQZ9Hc4MIK8Bpgt0M09LLqCRv
+\unrestrict Jg8h5AOxNPr7jb4LXYN7HmeMyDJPzT1F3zSQRLpCfvqYlqGNyjTjsbsi0PnESt9
 

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict LSj5KOGxQ44kLxX3LcmL6z4JZc6irf0TbMxYlrATmjRpMLuKisldjsZVkgEN3Jz
+\restrict la5yjilo0fmimVgOsZOvqSjbArh5Mw1WiIBbGwAEuMbY4qJT5D0njGR2LLCv7hR
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -93,5 +93,5 @@ CREATE INDEX idx_tools_inv_type_name ON texere.tools_inventory USING btree (tool
 -- PostgreSQL database dump complete
 --
 
-\unrestrict LSj5KOGxQ44kLxX3LcmL6z4JZc6irf0TbMxYlrATmjRpMLuKisldjsZVkgEN3Jz
+\unrestrict la5yjilo0fmimVgOsZOvqSjbArh5Mw1WiIBbGwAEuMbY4qJT5D0njGR2LLCv7hR
 

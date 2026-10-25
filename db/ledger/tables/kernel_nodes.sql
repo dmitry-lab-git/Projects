@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict Gg0KtvCr4SXxyd2kMGmiO08sgs3dvnlLOAaEI4b6lKwIoai0RQYhoxp5PUcZHTF
+\restrict Cq2MScE7NCkVAjXtjIiTsgoFm7UAaMXDgPG37j13lMZnc7CEBGVxV5JvuPgwFJM
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -89,5 +89,5 @@ CREATE INDEX idx_nodes_entity_code ON kernel.nodes USING btree (entity_code);
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Gg0KtvCr4SXxyd2kMGmiO08sgs3dvnlLOAaEI4b6lKwIoai0RQYhoxp5PUcZHTF
+\unrestrict Cq2MScE7NCkVAjXtjIiTsgoFm7UAaMXDgPG37j13lMZnc7CEBGVxV5JvuPgwFJM
 

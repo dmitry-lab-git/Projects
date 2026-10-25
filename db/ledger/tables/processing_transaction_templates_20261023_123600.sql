@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict XeP0HfKRwfmrpwYjgwjxNxpoh3o1xH2NveJJW1YjfxzYhgmPrxdXYybgNhZ7H9k
+\restrict mMI2QM31PuJ4d51Y7bHeGO0ffbDwZO8NwqVfHlY9kBFfabcbfPDecbhmmgkW5LX
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -79,5 +79,5 @@ GRANT ALL ON TABLE processing.transaction_templates_20261023_123600 TO receipt_p
 -- PostgreSQL database dump complete
 --
 
-\unrestrict XeP0HfKRwfmrpwYjgwjxNxpoh3o1xH2NveJJW1YjfxzYhgmPrxdXYybgNhZ7H9k
+\unrestrict mMI2QM31PuJ4d51Y7bHeGO0ffbDwZO8NwqVfHlY9kBFfabcbfPDecbhmmgkW5LX
 

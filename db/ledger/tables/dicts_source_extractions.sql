@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 1bRyXB5rzctaMA01MuC74gUrFd7E9ilIasT5kzEi2OlZvNCcSkuAPInCV5tiW1A
+\restrict jDfoyzwBMF3pQT7WTUs0Kk0KqP1hQM4GVsGKPnBR5yYtEK6ZXUXcQhuWQvfQvLh
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -54,5 +54,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE dicts.source_extractions TO reflex_ap
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 1bRyXB5rzctaMA01MuC74gUrFd7E9ilIasT5kzEi2OlZvNCcSkuAPInCV5tiW1A
+\unrestrict jDfoyzwBMF3pQT7WTUs0Kk0KqP1hQM4GVsGKPnBR5yYtEK6ZXUXcQhuWQvfQvLh
 

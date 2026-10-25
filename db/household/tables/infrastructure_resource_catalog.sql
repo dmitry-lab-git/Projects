@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict vwc06TrqxZIfbP7W7553VV5C0Pkmikw1l0lScaMgjAKmuAU53YlDo6CSuHJYqNn
+\restrict YxfRlh7fgHKMXGt7Cc5zMXWDxHfNCyOsZce2uqDqkgKmuRp7cUwV8wKQy9TcQwG
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -64,5 +64,5 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE infrastructure.resource_catalog TO re
 -- PostgreSQL database dump complete
 --
 
-\unrestrict vwc06TrqxZIfbP7W7553VV5C0Pkmikw1l0lScaMgjAKmuAU53YlDo6CSuHJYqNn
+\unrestrict YxfRlh7fgHKMXGt7Cc5zMXWDxHfNCyOsZce2uqDqkgKmuRp7cUwV8wKQy9TcQwG
 

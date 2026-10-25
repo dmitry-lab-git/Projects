@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict ooXSqDq4WC6ZcvXJMWqFuVJxW48VovhDRcjLmZdRckiynFLUuZjxUofVY8FCnLR
+\restrict uz10PJ5UoTCoiqLGSxDzxKwmhHaor7ouEFuo6cn6wdIOADb2i5HlpvWGBnjfv1K
 
 -- Dumped from database version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
@@ -44,5 +44,5 @@ CREATE TABLE archive.accounts_20260629_205647 (
 -- PostgreSQL database dump complete
 --
 
-\unrestrict ooXSqDq4WC6ZcvXJMWqFuVJxW48VovhDRcjLmZdRckiynFLUuZjxUofVY8FCnLR
+\unrestrict uz10PJ5UoTCoiqLGSxDzxKwmhHaor7ouEFuo6cn6wdIOADb2i5HlpvWGBnjfv1K
 
