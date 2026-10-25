@@ -43,3 +43,11 @@ rclone.exe
 # --- Локальные рабочие данные, никогда не коммитить ---
 **/_local/
 **/.local/
+
+# --- Исключения: схемы БД НУЖНЫ в Git ---
+!db/
+!db/household/
+!db/household/**
+!db/ledger/
+!db/ledger/**
+!db/dump.sh
