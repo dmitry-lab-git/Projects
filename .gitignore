@@ -45,3 +45,6 @@ Ledger/raw_data_ipad/docs/
 
 # rclone
 Ledger/raw_data_ipad/iPad_import/rclone-v1.74.3-windows-amd64/
+core/photo_processor/input_photos/
+core/photo_processor/output_processed/
+core/photo_processor/ai_input/
