@@ -212,7 +212,7 @@
             box-shadow: 0 0 6px var(--accent-green);
         }
 
-        /* ТЗ-004 Стили для сетки утилизации */
+        /* ТЗ-004 & ТЗ-005 Стили для сетки утилизации */
         .waste-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -227,10 +227,16 @@
             margin-bottom: 12px;
         }
 
+        /* A. Фикс layout таблицы по ТЗ-005 */
         .waste-col table {
+            table-layout: fixed;
             width: 100%;
             border-collapse: collapse;
         }
+
+        .waste-col col:nth-child(1) { width: 50%; }
+        .waste-col col:nth-child(2) { width: 26%; }
+        .waste-col col:nth-child(3) { width: 24%; }
 
         .waste-col th {
             color: #94a3b8;
@@ -244,12 +250,14 @@
         .waste-col th:nth-child(2),
         .waste-col th:nth-child(3) {
             text-align: right;
+            white-space: nowrap;
         }
 
         .waste-col td {
             padding: 10px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             font-size: 14px;
+            word-wrap: break-word;
         }
 
         .waste-col td:nth-child(2),
@@ -257,8 +265,36 @@
             text-align: right;
             font-weight: 600;
             font-variant-numeric: tabular-nums;
+            white-space: nowrap;
         }
 
+        /* B. Mobile breakpoint по ТЗ-005 */
+        @media (max-width: 767px) {
+            .waste-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .waste-col th {
+                font-size: 11px;
+                text-transform: uppercase;
+                opacity: 0.7;
+                white-space: nowrap;
+            }
+
+            .waste-col td {
+                font-size: 14px;
+                line-height: 1.3;
+                padding: 12px 4px;
+            }
+
+            #col-point {
+                border-top: 1px dashed rgba(255, 255, 255, 0.12);
+                padding-top: 12px;
+            }
+        }
+
+        /* C. Wide breakpoint */
         @media (min-width: 1024px) {
             .waste-grid {
                 grid-template-columns: 1fr 1fr;
@@ -391,6 +427,11 @@
                     <div class="waste-col" id="col-resource">
                         <div class="waste-col-header">📦 По ресурсам</div>
                         <table>
+                            <colgroup>
+                                <col>
+                                <col>
+                                <col>
+                            </colgroup>
                             <thead>
                                 <tr>
                                     <th>Ресурс / Материал</th>
@@ -436,6 +477,11 @@
                     <div class="waste-col" id="col-point">
                         <div class="waste-col-header">📍 По пунктам утилизации</div>
                         <table>
+                            <colgroup>
+                                <col>
+                                <col>
+                                <col>
+                            </colgroup>
                             <thead>
                                 <tr>
                                     <th>Пункт утилизации</th>
