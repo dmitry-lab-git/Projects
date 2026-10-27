@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Living Room — Home OS</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-purple: #c084fc;
+            --accent-orange: #fb923c;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+            color: var(--accent-blue);
+        }
+
+        header p {
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #334155;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .digital h2 { color: var(--accent-blue); }
+        .gardening h2 { color: var(--accent-green); }
+        .textile h2 { color: var(--accent-purple); }
+        .repair h2 { color: var(--accent-orange); }
+
+        .metric-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .metric-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #334155;
+            font-size: 0.95rem;
+        }
+
+        .metric-list li:last-child {
+            border-bottom: none;
+        }
+
+        .val {
+            font-weight: bold;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid #334155;
+            padding-top: 20px;
+        }
+
+        footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🏛️ Digital Living Room — Home OS</h1>
+        <p>Центральный хаб управления и аналитики экосистемы</p>
+    </header>
+
+    <div class="grid">
+        <!-- Digital Core -->
+        <div class="card digital">
+            <h2>📊 Digital (Core & Ledger)</h2>
+            <ul class="metric-list">
+                <li><span>Транзакции (public.transactions):</span> <span class="val">2,136</span></li>
+                <li><span>Снимки балансов (acc_balance_snapshot):</span> <span class="val">146</span></li>
+                <li><span>Верифицированные состояния:</span> <span class="val">6</span></li>
+                <li><span>PWA Staging поток:</span> <span class="val">278</span></li>
+            </ul>
+        </div>
+
+        <!-- Gardening -->
+        <div class="card gardening">
+            <h2>🌿 Gardening (Растениеводство)</h2>
+            <ul class="metric-list">
+                <li><span>Flower 1:</span> <span class="val" style="color: var(--accent-green);">Активный рост</span></li>
+                <li><span>Flower N:</span> <span class="val">В норме</span></li>
+                <li><span>Мониторинг полива:</span> <span class="val">Включен</span></li>
+            </ul>
+        </div>
+
+        <!-- Textile -->
+        <div class="card textile">
+            <h2>🧵 Textile (Ателье)</h2>
+            <ul class="metric-list">
+                <li><span>Реализовано проектов:</span> <span class="val">49</span></li>
+                <li><span>Готовых изделий:</span> <span class="val">60</span></li>
+                <li><span>Расход материалов:</span> <span class="val">62.08 п.м.</span></li>
+            </ul>
+        </div>
+
+        <!-- Ремонт -->
+        <div class="card repair">
+            <h2>🛠️ Ремонт & DIY</h2>
+            <ul class="metric-list">
+                <li><span>Ремонт гладильной доски</span> <span class="val">Done</span></li>
+                <li><span>Подсветка LED кухонной зоны</span> <span class="val">Done</span></li>
+                <li><span>Покраска МДФ фасада</span> <span class="val">Done</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        <p>Digital Living Room &copy; 2026</p>
+        <p>
+            <a href="https://github.com/dmitry-lab-git/Projects" target="_blank">GitHub</a> | 
+            <a href="https://www.instagram.com/dmitry_lab_social/" target="_blank">Instagram</a> | 
+            <a href="https://www.facebook.com/profile.php?id=61595870971588&locale=ru_RU" target="_blank">Facebook</a>
+        </p>
+    </footer>
+</div>
+
+</body>
+</html>
