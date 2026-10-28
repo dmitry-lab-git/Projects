@@ -8,7 +8,7 @@ from ..models.dicts import (
     Contragent, 
     Account, 
     DictStatus, 
-    DictsCurrency,  # <-- правильное имя модели
+    DictsCurrency,  
     Responsible, 
     DictCategory, 
     Entity
@@ -21,6 +21,11 @@ from ..models.transactions import (
 
 class State(rx.State):
     staging_transactions: list[dict] = []
+    
+    # Поля для неопубликованных транзакций и плавающей плашки
+    unposted_staging_transactions: list[dict] = []
+    last_transaction_info: str = "Нет данных"
+    unposted_count: int = 0
 
     @rx.event
     def on_load(self):
@@ -34,6 +39,35 @@ class State(rx.State):
     @rx.event
     def load_staging_transactions(self):
         with SessionLocal() as session:
+            # 1. Загружаем неопубликованные транзакции через функцию audit.get_unposted_transactions()
+            unposted_rows = session.execute(text("SELECT id, transaction_name, operation_date, operation_time, amount, code, current_status_code, current_status_name FROM audit.get_unposted_transactions()")).fetchall()
+            
+            self.unposted_staging_transactions = [
+                {
+                    "id": str(r[0])[:8] if r[0] else "-",
+                    "transaction_name": str(r[1] or "-"),
+                    "operation_date": str(r[2] or "-"),
+                    "operation_time": str(r[3] or "-"),
+                    "amount": f"{float(r[4] or 0.0):.2f}" if r[4] is not None else "-",
+                    "code": str(r[5] or "-"),
+                    "status_code": str(r[6] or "—"),
+                    "status_name": str(r[7] or "—"),
+                }
+                for r in unposted_rows
+            ]
+            self.unposted_count = len(self.unposted_staging_transactions)
+
+            # 2. Получаем последнюю транзакцию из представления reports.v_transactions_last
+            last_tx = session.execute(
+                text("SELECT code, transaction_name, amount, created_at FROM reports.v_transactions_last ORDER BY created_at DESC LIMIT 1")
+            ).fetchone()
+            
+            if last_tx:
+                self.last_transaction_info = f"{last_tx[0] or '—'} | {last_tx[1] or '—'} | {float(last_tx[2] or 0):.2f} | {str(last_tx[3])[:19] if last_tx[3] else '—'}"
+            else:
+                self.last_transaction_info = "Нет транзакций"
+
+            # 3. Сохраняем базовый список staging для совместимости
             query = (
                 select(StagingTransaction, DictStatus.code)
                 .outerjoin(DictStatus, StagingTransaction.status_id == DictStatus.id)
@@ -99,7 +133,7 @@ class State(rx.State):
     @rx.var
     def type_list(self) -> list[tuple[str, str]]:
         with SessionLocal() as session:
-            stmt = select(DictType).order_by(DictType.type_name)
+            stmt = select(DictType).order_by(desc(DictType.code))
             rows = session.execute(stmt).scalars().all()
             return [(str(r.type_id), r.type_name) for r in rows]
 
@@ -118,20 +152,20 @@ class State(rx.State):
         with SessionLocal() as session:
             sql = text("""
                 SELECT 
-                    asr.account_id, 
-                    asr.account_name, 
-                    e.entity_name 
-                FROM reports.account_state_report asr
-                LEFT JOIN dicts.accounts a ON asr.account_id = a.account_id
+                    a.account_id, 
+                    a.account_name, 
+                    a.code,
+                    e.entity_name,
+                    e.entity_id
+                FROM dicts.accounts a
                 LEFT JOIN dicts.entities e ON a.entity_id = e.entity_id
-                WHERE asr.account_state = 'active'
-                ORDER BY asr.account_name
+                ORDER BY a.code DESC NULLS LAST
             """)
             rows = session.execute(sql).fetchall()
             return [
                 (
                     str(r.account_id), 
-                    f"{r.account_name} ({r.entity_name or 'Без сущности'})"
+                    f"{r.account_name or '—'} | {r.account_name or '—'} | {r.entity_name or '—'}({r.entity_id or '—'}({r.account_id})) | {r.code if r.code is not None else '—'}"
                 ) 
                 for r in rows
             ]
@@ -161,10 +195,16 @@ class State(rx.State):
                 FROM dicts.entities e 
                 LEFT JOIN dicts.dict_categories c 
                     ON e.category_id = c.category_id 
-                ORDER BY e.entity_name
+                ORDER BY e.code DESC NULLS LAST
             """)
             rows = session.execute(sql).fetchall()
-            return [(str(r.entity_id), f"{r.entity_name} ({r.code}) | {r.category_name or 'Без категории'}") for r in rows]
+            return [
+                (
+                    str(r.entity_id), 
+                    f"{r.entity_name or '—'} | {r.category_name or 'Без категории'} | {r.code if r.code is not None else '—'}"
+                ) 
+                for r in rows
+            ]
 
     @rx.var
     def filtered_entities(self) -> list[tuple[str, str]]:
@@ -184,9 +224,24 @@ class State(rx.State):
     @rx.var
     def category_list(self) -> list[tuple[str, str]]:
         with SessionLocal() as session:
-            sql = text("SELECT c.category_id, c.code, c.category_name, p.category_name AS parent_name FROM dicts.dict_categories c LEFT JOIN dicts.dict_categories p ON c.parent_category_id = p.category_id ORDER BY c.category_name")
+            sql = text("""
+                SELECT 
+                    c.category_id, 
+                    c.code, 
+                    c.category_name, 
+                    p.category_name AS parent_name 
+                FROM dicts.dict_categories c 
+                LEFT JOIN dicts.dict_categories p ON c.parent_category_id = p.category_id 
+                ORDER BY c.code DESC NULLS LAST
+            """)
             rows = session.execute(sql).fetchall()
-            return [(str(r.category_id), f"{r.category_name} ({r.code}) | {r.parent_name or 'Корневая'}") for r in rows]
+            return [
+                (
+                    str(r.category_id), 
+                    f"{r.category_name or '—'} | {r.parent_name or 'Корневая'} | {r.code if r.code is not None else '—'}"
+                ) 
+                for r in rows
+            ]
 
     @rx.var
     def filtered_categories(self) -> list[tuple[str, str]]:
@@ -210,9 +265,25 @@ class State(rx.State):
     @rx.var
     def contragent_list(self) -> list[tuple[str, str]]:
         with SessionLocal() as session:
-            stmt = select(Contragent).order_by(Contragent.code)
-            rows = session.execute(stmt).scalars().all()
-            return [(str(r.contragent_id), f"{r.contragent_name} ({r.code})") for r in rows]
+            sql = text("""
+                SELECT 
+                    c.contragent_id, 
+                    c.code, 
+                    c.contragent_name, 
+                    COALESCE(ad.address_name, cp."Адрес", '—') AS address_name
+                FROM dicts.contragents c
+                LEFT JOIN dicts.addresses ad ON c.address_id = ad.id
+                LEFT JOIN dicts.counterperyid_t_flw_037_3006 cp ON c.code = cp."CtrCode"
+                ORDER BY c.code DESC NULLS LAST
+            """)
+            rows = session.execute(sql).fetchall()
+            return [
+                (
+                    str(r.contragent_id), 
+                    f"{r.contragent_name or '—'} | {r.contragent_name or '—'} | {r.address_name or '—'} | {r.code if r.code is not None else '—'}"
+                ) 
+                for r in rows
+            ]
 
     @rx.var
     def filtered_contragents(self) -> list[tuple[str, str]]:
@@ -330,7 +401,7 @@ class SnapshotRegisterState(rx.State):
     @rx.var
     def account_list(self) -> list[tuple[str, str]]:
         with SessionLocal() as session:
-            stmt = select(Account).order_by(Account.account_name)
+            stmt = select(Account).order_by(desc(Account.code))
             rows = session.execute(stmt).scalars().all()
             return [(str(r.account_id), r.account_name) for r in rows]
 

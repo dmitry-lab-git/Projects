@@ -71,7 +71,7 @@ def add_transaction_page() -> rx.Component:
                                 width="100%",
                             ),
 
-                            # 4. Дата операции [input type=date] + [x] Текущая
+                            # 4. Дата операции
                             rx.hstack(
                                 rx.vstack(
                                     rx.text("Дата операции:", weight="bold"),
@@ -101,7 +101,7 @@ def add_transaction_page() -> rx.Component:
                                 width="100%",
                             ),
 
-                            # 5. Время операции [input type=time] + [x] Текущее
+                            # 5. Время операции
                             rx.hstack(
                                 rx.vstack(
                                     rx.text("Время операции:", weight="bold"),
@@ -192,7 +192,7 @@ def add_transaction_page() -> rx.Component:
                                 width="100%",
                             ),
 
-                            # 10. Тип операции (было Направленность)
+                            # 10. Тип операции
                             rx.text("Тип операции:", size="2", weight="bold"),
                             rx.select.root(
                                 rx.select.trigger(placeholder="Выберите тип операции..."),
@@ -222,7 +222,7 @@ def add_transaction_page() -> rx.Component:
                                 width="100%",
                             ),
 
-                            # 12. Направленность операции (было Сущность)
+                            # 12. Направленность операции
                             rx.text("Направленность операции:", size="2", weight="bold"),
                             rx.select.root(
                                 rx.select.trigger(placeholder="Выберите направленность..."),
@@ -237,7 +237,7 @@ def add_transaction_page() -> rx.Component:
                                 width="100%",
                             ),
 
-                            # Кнопки
+                            # Кнопки формы
                             rx.hstack(
                                 rx.button("Записать в базу данных", type="submit", color_scheme="blue", flex="1"),
                                 rx.button(
@@ -256,10 +256,17 @@ def add_transaction_page() -> rx.Component:
                         reset_on_submit=True,
                     ),
 
-                    # Блок последних операций (Staging) с кнопкой обновления
+                    # Блок неопубликованных транзакций из Staging
                     rx.divider(margin_y="1em"),
                     rx.hstack(
-                        rx.heading("Последние операции (Staging)", size="4"),
+                        rx.heading(
+                            rx.cond(
+                                State.unposted_count > 0,
+                                "Не опубликованные транзакции таблицы Staging:",
+                                "Все транзакции опубликованы"
+                            ),
+                            size="4"
+                        ),
                         rx.spacer(),
                         rx.icon_button(
                             rx.icon(tag="refresh-cw"),
@@ -273,32 +280,39 @@ def add_transaction_page() -> rx.Component:
                         width="100%",
                         align="center",
                     ),
-                    rx.table.root(
-                        rx.table.header(
-                            rx.table.row(
-                                rx.table.column_header_cell("UUID"),
-                                rx.table.column_header_cell("Название"),
-                                rx.table.column_header_cell("Код транзакции"),
-                                rx.table.column_header_cell("Дата"),
-                                rx.table.column_header_cell("Время"),
-                                rx.table.column_header_cell("Сумма"),
-                            ),
-                        ),
-                        rx.table.body(
-                            rx.foreach(
-                                State.staging_transactions,
-                                lambda tx: rx.table.row(
-                                    rx.table.cell(tx["id"]),
-                                    rx.table.cell(tx["transaction_name"]),
-                                    rx.table.cell(tx["code"]),
-                                    rx.table.cell(tx["operation_date"]),
-                                    rx.table.cell(tx["operation_time"]),
-                                    rx.table.cell(tx["amount"]),
+                    
+                    rx.cond(
+                        State.unposted_count > 0,
+                        rx.table.root(
+                            rx.table.header(
+                                rx.table.row(
+                                    rx.table.column_header_cell("UUID"),
+                                    rx.table.column_header_cell("Название"),
+                                    rx.table.column_header_cell("Код"),
+                                    rx.table.column_header_cell("Дата"),
+                                    rx.table.column_header_cell("Время"),
+                                    rx.table.column_header_cell("Сумма"),
+                                    rx.table.column_header_cell("Статус"),
                                 ),
                             ),
+                            rx.table.body(
+                                rx.foreach(
+                                    State.unposted_staging_transactions,
+                                    lambda tx: rx.table.row(
+                                        rx.table.cell(tx["id"]),
+                                        rx.table.cell(tx["transaction_name"]),
+                                        rx.table.cell(tx["code"]),
+                                        rx.table.cell(tx["operation_date"]),
+                                        rx.table.cell(tx["operation_time"]),
+                                        rx.table.cell(tx["amount"]),
+                                        rx.table.cell(tx["status_name"]),
+                                    ),
+                                ),
+                            ),
+                            width="100%",
+                            margin_top="0.5em",
                         ),
-                        width="100%",
-                        margin_top="0.5em",
+                        rx.text("Все транзакции опубликованы", color="green", weight="bold", margin_top="0.5em")
                     ),
                     spacing="3",
                 ),
@@ -306,7 +320,46 @@ def add_transaction_page() -> rx.Component:
                 padding="1.5em",
             ),
             spacing="4",
-            padding_bottom="4em",
+            padding_bottom="6em",
+        ),
+        
+        # Плавающая кнопка обновления справочников в правом нижнем углу
+        rx.box(
+            rx.button(
+                rx.icon(tag="refresh-cw"),
+                "Обновить справочники",
+                on_click=State.refresh_staging_transactions,
+                color_scheme="gray",
+                variant="solid",
+                size="3",
+                box_shadow="lg",
+                cursor="pointer",
+            ),
+            position="fixed",
+            bottom="2rem",
+            right="2rem",
+            z_index="1000",
+        ),
+
+        # Плавающая плашка снизу страницы
+        rx.box(
+            rx.vstack(
+                rx.text("Последняя транзакция в transactions: " + State.last_transaction_info, size="1", weight="bold"),
+                rx.text("Количество неопубликованных транзакций staging: " + State.unposted_count.to_string(), size="1"),
+                spacing="1",
+                align="start",
+            ),
+            position="fixed",
+            bottom="1rem",
+            left="50%",
+            transform="translateX(-50%)",
+            bg="white",
+            border="1px solid #e2e8f0",
+            box_shadow="lg",
+            padding="0.75rem 1.25rem",
+            border_radius="md",
+            z_index="1000",
+            max_width="90vw",
         ),
         size="2",
     )

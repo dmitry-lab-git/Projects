@@ -2,7 +2,8 @@ import reflex as rx
 from sqlmodel import select
 from uuid import UUID
 from datetime import datetime
-from decimal import Decimal  # <--- Добавьте этот импорт
+from decimal import Decimal
+from sqlalchemy import text  # <--- Добавлено для поддержки сырых SQL запросов с JOIN
 from pwa.models.transactions import TransactionTemplate, StagingTransaction
 from pwa.models.dicts import (
     Contragent,
@@ -116,10 +117,74 @@ class TransactionTemplateState(rx.State):
             ]
             self.template_options = [(str(t.id), t.transaction_name) for t in db_templates]
 
-            self.filtered_contragents = [(str(c.id), c.contragent_name or "") for c in session.exec(select(Contragent)).all()]
-            self.filtered_categories = [(str(c.id), c.category_name or "") for c in session.exec(select(Category)).all()]
-            self.filtered_entities = [(str(e.id), e.entity_name or "") for e in session.exec(select(Entity)).all()]
-            self.filtered_accounts = [(str(a.id), a.account_name or "") for a in session.exec(select(Account)).all()]
+            # 1. Направленность (Entity): name | category_name | code - отсортировать по убыванию
+            entity_rows = session.exec(text("""
+                SELECT 
+                    e.id, 
+                    e.entity_name, 
+                    c.category_name, 
+                    e.code 
+                FROM dicts.entities e 
+                LEFT JOIN dicts.dict_categories c ON e.category_id = c.category_id 
+                ORDER BY e.code DESC NULLS LAST
+            """)).fetchall()
+            self.filtered_entities = [
+                (str(r[0]), f"{r[1] or '—'} | {r[2] or 'Без категории'} | {r[3] if r[3] is not None else '—'}")
+                for r in entity_rows
+            ]
+
+            # 2. Категория (Category): name | parent_category_name | code - отсортировать по убыванию
+            category_rows = session.exec(text("""
+                SELECT 
+                    cat.id, 
+                    cat.category_name, 
+                    p.category_name AS parent_name, 
+                    cat.code 
+                FROM dicts.dict_categories cat 
+                LEFT JOIN dicts.dict_categories p ON cat.parent_category_id = p.category_id 
+                ORDER BY cat.code DESC NULLS LAST
+            """)).fetchall()
+            self.filtered_categories = [
+                (str(r[0]), f"{r[1] or '—'} | {r[2] or 'Корневая'} | {r[3] if r[3] is not None else '—'}")
+                for r in category_rows
+            ]
+
+            # 3. Контрагенты: name | contragent_name | adress | code - отсортировать по убыванию
+            contragent_rows = session.exec(text("""
+                SELECT 
+                    c.id, 
+                    c.contragent_name, 
+                    COALESCE(ad.address_name, cp."Адрес", '—') AS address_name, 
+                    c.code 
+                FROM dicts.contragents c
+                LEFT JOIN dicts.addresses ad ON c.address_id = ad.id
+                LEFT JOIN dicts.counterperyid_t_flw_037_3006 cp ON c.code = cp."CtrCode"
+                ORDER BY c.code DESC NULLS LAST
+            """)).fetchall()
+            self.filtered_contragents = [
+                (str(r[0]), f"{r[1] or '—'} | {r[1] or '—'} | {r[2] or '—'} | {r[3] if r[3] is not None else '—'}")
+                for r in contragent_rows
+            ]
+
+            # 4. Счета (Account): name | account_name | entity_name(entity_id(account_id)) | code - отсортировать по убыванию
+            account_rows = session.exec(text("""
+                SELECT 
+                    a.id, 
+                    a.account_name, 
+                    e.entity_name, 
+                    e.entity_id, 
+                    a.account_id, 
+                    a.code 
+                FROM dicts.accounts a
+                LEFT JOIN dicts.entities e ON a.entity_id = e.entity_id
+                ORDER BY a.code DESC NULLS LAST
+            """)).fetchall()
+            self.filtered_accounts = [
+                (str(r[0]), f"{r[1] or '—'} | {r[1] or '—'} | {r[2] or '—'}({r[3] or '—'}({r[4] or '—'})) | {r[5] if r[5] is not None else '—'}")
+                for r in account_rows
+            ]
+
+            # Остальные справочники
             self.filtered_types = [(str(t.id), t.type_name or "") for t in session.exec(select(DictType)).all()]
             self.filtered_currencies = [(str(cur.id), cur.currency_id or "") for cur in session.exec(select(DictsCurrency)).all()]
             self.filtered_responsibles = [(str(r.id), r.resp_name or "") for r in session.exec(select(Responsible)).all()]
@@ -189,6 +254,7 @@ class TransactionTemplateState(rx.State):
                 contragent_from_id=to_uuid_or_none(self.contragent_from_id),
                 contragent_to_id=to_uuid_or_none(self.contragent_to_id),
                 account_id=to_uuid_or_none(self.account_id),
+                status_id=UUID("63c67651-152d-4b3f-a33d-89d2958b88ba"),
             )
             session.add(new_template)
             session.commit()
@@ -198,7 +264,6 @@ class TransactionTemplateState(rx.State):
 
     @rx.event
     def create_staging_transaction(self, form_data: dict):
-        # Гарантируем актуальность даты/времени перед записью
         self._set_now_if_checked()
 
         raw_amount = self.amount.replace(",", ".") if self.amount else None
@@ -210,7 +275,6 @@ class TransactionTemplateState(rx.State):
         except (ValueError, TypeError):
             return rx.toast.error("Некорректный формат суммы!")
 
-        # Проверка обязательных UUID полей на уровне стейта
         required_fields = [
             (self.type_id, "Тип операции"),
             (self.entity_id, "Направленность операции"),
@@ -227,8 +291,8 @@ class TransactionTemplateState(rx.State):
                 return rx.toast.error(f"Поле '{name}' обязательно для заполнения!")
 
         with rx.session() as session:
-            new_staging = StagingTransaction(  # <--- Пишем именно в staging таблицу
-                source_extraction_id=UUID("5d345cf0-a116-4f4d-a31e-84125f556212"), # Пример UUID источника экстракции
+            new_staging = StagingTransaction(
+                source_extraction_id=UUID("5d345cf0-a116-4f4d-a31e-84125f556212"),
                 transaction_name=self.transaction_name,
                 amount=valid_amount,
                 entity_id=UUID(self.entity_id),
@@ -239,7 +303,6 @@ class TransactionTemplateState(rx.State):
                 account_id=UUID(self.account_id),
                 type_id=UUID(self.type_id),
                 currency_id=UUID(self.currency_id),
-                # Фиксированный статус транзакции для staging:
                 status_id=UUID("dbcb7867-333e-4cac-a2ad-dbf897f1dd73"),
                 operation_date=datetime.strptime(self.operation_date, "%Y-%m-%d").date(),
                 operation_time=datetime.strptime(self.operation_time, "%H:%M").time() if len(self.operation_time) == 5 else datetime.strptime(self.operation_time, "%H:%M:%S").time(),
