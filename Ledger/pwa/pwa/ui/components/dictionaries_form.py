@@ -26,12 +26,10 @@ def dictionaries_form() -> rx.Component:
                         width="100%",
                     ),
                     
-                    # Правая часть — красивая, структурированная памятка
+                    # Правая часть — памятка регламента
                     rx.box(
                         rx.vstack(
                             rx.text("📋 Регламент адреса:", font_weight="bold", size="3", color="#1f2937", margin_bottom="4px"),
-                            
-                            # Пункты списка с маркерами для читаемости
                             rx.vstack(
                                 rx.text("• Начало со строчных: ул. / пр. / пер. / мкр.", size="2", color="#4b5563"),
                                 rx.text("• Обязательно запятая перед номером дома", size="2", color="#4b5563"),
@@ -40,8 +38,6 @@ def dictionaries_form() -> rx.Component:
                                 spacing="1",
                                 align_items="start",
                             ),
-                            
-                            # Блок примера с мягким зеленым фоном
                             rx.box(
                                 rx.vstack(
                                     rx.text("💡 Пример ввода:", font_weight="bold", size="1", color="#166534"),
@@ -74,7 +70,7 @@ def dictionaries_form() -> rx.Component:
                 
                 rx.divider(),
                 
-                # Секция вывода последних 5 адресов с кнопкой обновить
+                # Последние 5 адресов
                 rx.flex(
                     rx.heading("Последние 5 адресов", size="3"),
                     rx.button(
@@ -90,7 +86,6 @@ def dictionaries_form() -> rx.Component:
                     width="100%",
                     margin_bottom="2px"
                 ),
-                
                 rx.scroll_area(
                     rx.table.root(
                         rx.table.header(
@@ -188,7 +183,6 @@ def dictionaries_form() -> rx.Component:
                             placeholder="Тип контрагента...",
                             width="100%",
                         ),
-                        # Используем выпадающий список в формате "code | address_name"
                         rx.select(
                             DictionariesState.address_options,
                             value=DictionariesState.selected_address_name,
@@ -248,11 +242,24 @@ def dictionaries_form() -> rx.Component:
         # 4. Форма и таблица: Категории
         rx.card(
             rx.vstack(
-                rx.heading("Справочник категорий", size="4"),
+                rx.flex(
+                    rx.heading("Справочник категорий", size="4"),
+                    rx.button(
+                        "Обновить справочники", 
+                        size="1", 
+                        variant="outline", 
+                        color_scheme="gray", 
+                        on_click=DictionariesState.load_dictionaries, 
+                        cursor="pointer"
+                    ),
+                    justify="between",
+                    align="center",
+                    width="100%",
+                    margin_bottom="2px"
+                ),
                 rx.form.root(
                     rx.vstack(
                         rx.input(placeholder="Наименование категории", name="category_name", required=True, width="100%"),
-                        # Выпадающий список родительской категории в формате "name | code" (опционально)
                         rx.select(
                             DictionariesState.category_options,
                             value=DictionariesState.selected_parent_category_name,
@@ -304,11 +311,24 @@ def dictionaries_form() -> rx.Component:
         # 5. Форма и таблица: Направленности (Entities)
         rx.card(
             rx.vstack(
-                rx.heading("Справочник направленностей (Entities)", size="4"),
+                rx.flex(
+                    rx.heading("Справочник направленностей (Entities)", size="4"),
+                    rx.button(
+                        "Обновить справочники", 
+                        size="1", 
+                        variant="outline", 
+                        color_scheme="gray", 
+                        on_click=DictionariesState.load_dictionaries, 
+                        cursor="pointer"
+                    ),
+                    justify="between",
+                    align="center",
+                    width="100%",
+                    margin_bottom="2px"
+                ),
                 rx.form.root(
                     rx.vstack(
                         rx.input(placeholder="Наименование направленности", name="entity_name", required=True, width="100%"),
-                        # Выпадающий список категории в формате "name | code"
                         rx.select(
                             DictionariesState.category_options,
                             value=DictionariesState.selected_entity_category_name,

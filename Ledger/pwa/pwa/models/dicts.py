@@ -43,11 +43,10 @@ class Contragent(SQLModel, table=True):
     id: Optional[PyUUID] = Field(sa_column=Column(PG_UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")))
     code: Optional[int] = Field(sa_column=Column(Integer))
     contragent_name: Optional[str] = Field(sa_column=Column(String(50)))
-    contragent_id: Optional[str] = Field(sa_column=Column(String(50)))
+    contragent_id: Optional[str] = Field(sa_column=Column(String(50), nullable=False)) # Можно сразу обновить на nullable=False, раз мы добавили NOT NULL
     contragent_type: Optional[str] = Field(sa_column=Column(String(50)))
     description: Optional[str] = Field(sa_column=Column(String(512)))
     address_id: Optional[PyUUID] = Field(sa_column=Column(PG_UUID(as_uuid=True)))
-    keywords: Optional[List[str]] = Field(sa_column=Column(ARRAY(String)))
     created_at: Optional[datetime] = Field(sa_column=Column(DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP")))
     status_id: PyUUID = Field(sa_column=Column(PG_UUID(as_uuid=True), nullable=False))
     merchant_id: Optional[PyUUID] = Field(sa_column=Column(PG_UUID(as_uuid=True)))
@@ -73,7 +72,6 @@ class DictCategory(SQLModel, table=True):
     category_name: str = Field(sa_column=Column(String(255), nullable=False))
     category_id: str = Field(sa_column=Column(String(50), nullable=False))
     parent_category_id: Optional[str] = Field(sa_column=Column(String(50)))
-    keywords: Optional[List[str]] = Field(sa_column=Column(ARRAY(String)))
     created_at: Optional[datetime] = Field(sa_column=Column(DateTime(timezone=True)))
     status_id: PyUUID = Field(sa_column=Column(PG_UUID(as_uuid=True), nullable=False))
 
@@ -114,7 +112,6 @@ class Entity(SQLModel, table=True):
     entity_name: Optional[str] = Field(sa_column=Column(String(50)))
     entity_id: Optional[str] = Field(sa_column=Column(String(50)))
     category_id: Optional[str] = Field(sa_column=Column(String(50)))
-    keywords: Optional[List[str]] = Field(sa_column=Column(ARRAY(String)))
     created_at: Optional[datetime] = Field(sa_column=Column(DateTime(timezone=True)))
     status_id: PyUUID = Field(sa_column=Column(PG_UUID(as_uuid=True), nullable=False))
 
