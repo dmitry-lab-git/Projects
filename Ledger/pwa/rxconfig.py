@@ -8,7 +8,7 @@ load_dotenv("/home/fujitsu-u745/Projects/secure_folder/pwa/.env")
 
 config = rx.Config(
     app_name="pwa",
-    api_url="http://192.168.43.218:8000",
+    api_url="rx.constants.API_URL",
     backend_host="0.0.0.0",
     frontend_host="0.0.0.0",
     backend_port=8000,
