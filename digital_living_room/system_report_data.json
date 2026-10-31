@@ -1,0 +1,259 @@
+{
+    "digital": {
+        "transactions": "2164",
+        "balance_snapshots": "152",
+        "verified_states": "7",
+        "pwa_staging_flow": "307"
+    },
+    "textile": {
+        "projects_implemented": "52",
+        "finished_products": "66",
+        "material_consumption_m": 82.07
+    },
+    "recycling": {
+        "period": "October 2026",
+        "disposition_records": [
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Прочие отходы (кухня)",
+                "resource_type": "Неперерабатываемые отходы",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 0.15,
+                "utilized_at": "2026-10-04 00:00:00",
+                "disposal_point_name": "Контейнер для мусора (ТБО)",
+                "disposal_point_type": "Захоронение на ТБО"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Пищевые отходы, твердая форма",
+                "resource_type": "Органика",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 4.0,
+                "utilized_at": "2026-10-17 00:00:00",
+                "disposal_point_name": "Контейнер для мусора (ТБО)",
+                "disposal_point_type": "Захоронение на ТБО"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Пищевые отходы, твердая форма",
+                "resource_type": "Органика",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 4.9,
+                "utilized_at": "2026-10-04 00:00:00",
+                "disposal_point_name": "Контейнер для мусора (ТБО)",
+                "disposal_point_type": "Захоронение на ТБО"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Прочие отходы (кухня)",
+                "resource_type": "Неперерабатываемые отходы",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 0.1,
+                "utilized_at": "2026-10-08 00:00:00",
+                "disposal_point_name": "Контейнер для мусора (ТБО)",
+                "disposal_point_type": "Захоронение на ТБО"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Пищевые отходы, твердая форма",
+                "resource_type": "Органика",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 4.1,
+                "utilized_at": "2026-10-08 00:00:00",
+                "disposal_point_name": "Контейнер для мусора (ТБО)",
+                "disposal_point_type": "Захоронение на ТБО"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Пластик",
+                "resource_type": "Вторичное сырье",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 0.3,
+                "utilized_at": "2026-10-13 00:00:00",
+                "disposal_point_name": "Контейнер для пластика",
+                "disposal_point_type": "Сбор пластика"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Прочие отходы (кухня)",
+                "resource_type": "Неперерабатываемые отходы",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 0.5,
+                "utilized_at": "2026-10-13 00:00:00",
+                "disposal_point_name": "Контейнер для мусора (ТБО)",
+                "disposal_point_type": "Захоронение на ТБО"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Пищевые отходы, твердая форма",
+                "resource_type": "Органика",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 1.6,
+                "utilized_at": "2026-10-13 00:00:00",
+                "disposal_point_name": "Контейнер для мусора (ТБО)",
+                "disposal_point_type": "Захоронение на ТБО"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Стекло",
+                "resource_type": "Вторичное сырье",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 0.569,
+                "utilized_at": "2026-10-13 00:00:00",
+                "disposal_point_name": "Пункт приема в ТРЦ Batyr mall",
+                "disposal_point_type": "Сбор стекла"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Бумажные отходы",
+                "resource_type": "Вторичное сырье",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 0.25,
+                "utilized_at": "2026-10-13 00:00:00",
+                "disposal_point_name": "Пункт приема в ТРЦ Batyr mall",
+                "disposal_point_type": "Сбор бумаги"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Прочие отходы (кухня)",
+                "resource_type": "Неперерабатываемые отходы",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 0.4,
+                "utilized_at": "2026-10-17 00:00:00",
+                "disposal_point_name": "Контейнер для мусора (ТБО)",
+                "disposal_point_type": "Захоронение на ТБО"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Пластик",
+                "resource_type": "Вторичное сырье",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 0.15,
+                "utilized_at": "2026-10-17 00:00:00",
+                "disposal_point_name": "Контейнер для пластика",
+                "disposal_point_type": "Сбор пластика"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Бумажные отходы",
+                "resource_type": "Вторичное сырье",
+                "unit": "кг",
+                "device_name": "DEXP KG-30W",
+                "uncertainty": 0.001,
+                "quantity": 0.162,
+                "utilized_at": "2026-10-17 00:00:00",
+                "disposal_point_name": "Пункт приема в ТРЦ Batyr mall",
+                "disposal_point_type": "Сбор бумаги"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Прочие отходы (кухня)",
+                "resource_type": "Неперерабатываемые отходы",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 0.5,
+                "utilized_at": "2026-10-22 00:00:00",
+                "disposal_point_name": "Контейнер для мусора (ТБО)",
+                "disposal_point_type": "Захоронение на ТБО"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Отработанный текстиль",
+                "resource_type": "Неперерабатываем отходы",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 0.85,
+                "utilized_at": "2026-10-22 00:00:00",
+                "disposal_point_name": "Контейнер для мусора (ТБО)",
+                "disposal_point_type": "Захоронение на ТБО"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Пищевые отходы, твердая форма",
+                "resource_type": "Органика",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 0.4,
+                "utilized_at": "2026-10-22 00:00:00",
+                "disposal_point_name": "Контейнер для мусора (ТБО)",
+                "disposal_point_type": "Захоронение на ТБО"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Пластик",
+                "resource_type": "Вторичное сырье",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 0.2,
+                "utilized_at": "2026-10-22 00:00:00",
+                "disposal_point_name": "Контейнер для пластика",
+                "disposal_point_type": "Сбор пластика"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Прочие отходы (кухня)",
+                "resource_type": "Неперерабатываемые отходы",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 0.15,
+                "utilized_at": "2026-10-27 00:00:00",
+                "disposal_point_name": "Контейнер для мусора (ТБО)",
+                "disposal_point_type": "Захоронение на ТБО"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Пищевые отходы, твердая форма",
+                "resource_type": "Органика",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 1.0,
+                "utilized_at": "2026-10-27 00:00:00",
+                "disposal_point_name": "Контейнер для мусора (ТБО)",
+                "disposal_point_type": "Захоронение на ТБО"
+            },
+            {
+                "interval_start": "2026-10-01",
+                "resource_name": "Пластик",
+                "resource_type": "Вторичное сырье",
+                "unit": "кг",
+                "device_name": "DEXP BM-10",
+                "uncertainty": 0.05,
+                "quantity": 0.25,
+                "utilized_at": "2026-10-27 00:00:00",
+                "disposal_point_name": "Пункт приема в ТРЦ Batyr mall",
+                "disposal_point_type": "Сбор пластика"
+            }
+        ]
+    },
+    "updated_at": "31.10.2026 23:33:10"
+}

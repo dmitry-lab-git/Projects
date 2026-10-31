@@ -1,0 +1,101 @@
+{
+    "digital": {
+        "transactions": "2164",
+        "balance_snapshots": "152",
+        "verified_states": "7",
+        "pwa_staging_flow": "307"
+    },
+    "textile": {
+        "projects_implemented": "52",
+        "finished_products": "66",
+        "material_consumption_m": 82.07
+    },
+    "recycling": {
+        "period": "September 2026",
+        "by_resource": [
+            {
+                "material": "C/PAP",
+                "mass": "0.120 кг",
+                "count": "1 шт."
+            },
+            {
+                "material": "Бумажные отходы",
+                "mass": "0.823 кг",
+                "count": "3 шт."
+            },
+            {
+                "material": "Бумажные салфетки (кухня)",
+                "mass": "0.094 кг",
+                "count": "2 шт."
+            },
+            {
+                "material": "Керамика",
+                "mass": "0.291 кг",
+                "count": "1 шт."
+            },
+            {
+                "material": "Комбинированные упаковки, текстиль",
+                "mass": "0.400 кг",
+                "count": "2 шт."
+            },
+            {
+                "material": "Металл",
+                "mass": "0.250 кг",
+                "count": "1 шт."
+            },
+            {
+                "material": "Остатки акриловой краски",
+                "mass": "0.165 кг",
+                "count": "1 шт."
+            },
+            {
+                "material": "Пищевые отходы, жидкая форма",
+                "mass": "18.050 кг",
+                "count": "4 шт."
+            },
+            {
+                "material": "Пищевые отходы, твердая форма",
+                "mass": "60.700 кг",
+                "count": "13 шт."
+            },
+            {
+                "material": "Пластик",
+                "mass": "1.900 кг",
+                "count": "8 шт."
+            },
+            {
+                "material": "Прочие отходы (кухня)",
+                "mass": "1.300 кг",
+                "count": "7 шт."
+            },
+            {
+                "material": "Стекло",
+                "mass": "4.900 кг",
+                "count": "2 шт."
+            }
+        ],
+        "by_point": [
+            {
+                "point": "Компостная куча",
+                "mass": "44.694 кг",
+                "count": "11 шт."
+            },
+            {
+                "point": "Контейнер для мусора (ТБО)",
+                "mass": "40.476 кг",
+                "count": "22 шт."
+            },
+            {
+                "point": "Контейнер для пластика",
+                "mass": "1.900 кг",
+                "count": "8 шт."
+            },
+            {
+                "point": "Пункт приема в ТРЦ Batyr mall",
+                "mass": "1.923 кг",
+                "count": "4 шт."
+            }
+        ]
+    },
+    "updated_at": "31.10.2026 21:53:49"
+}
