@@ -10,6 +10,8 @@ from .ui.pages.medicine_report import medicine_report_page
 from .ui.pages.dictionaries import dictionaries_page
 from .ui.pages.projects import projects_page
 from .ui.pages.project_editor import project_editor_page
+# Импорт страницы тайм-трекера для ее автоматической регистрации через декоратор @rx.page
+from .ui.pages.time_tracker import time_tracker_page
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from src.services.cron.jobs.readme_updater import update_readme_metrics

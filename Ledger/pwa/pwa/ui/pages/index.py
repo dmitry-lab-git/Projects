@@ -39,6 +39,15 @@ def household_menu() -> rx.Component:
             rx.button("Утилизация отходов", variant="outline"),
             href="/infrastructure",
         ),
+        # ДОБАВЛЕНО: Кнопка перехода на страницу фиксации рабочего времени
+        rx.link(
+            rx.button(
+                "⏱️ Учет рабочего времени", 
+                variant="outline",
+                color_scheme="grass",
+            ),
+            href="/time-tracker",
+        ),
         justify="start",
         spacing="3",
         wrap="wrap",
@@ -92,7 +101,7 @@ def index() -> rx.Component:
                         variant="outline",
                         color_scheme="blue",
                     ),
-                    href="/medicine",  # твой существующий роут
+                    href="/medicine",
                 ),
                 rx.link(
                     rx.button(
@@ -117,4 +126,3 @@ def index() -> rx.Component:
         ),
         max_width="900px",
     )
-
