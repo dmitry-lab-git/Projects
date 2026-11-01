@@ -1,13 +1,19 @@
+"""
+Service: Automatic system metrics updater for JSON reports.
+Saves data to JSON and triggers Git integration via shared git_service.
+"""
 import os
 import time
 import json
-import subprocess
 import reflex as rx
 from sqlalchemy import text
 import logging
 from datetime import datetime, timezone, timedelta
 
 from pwa.db import get_household_session
+# Импортируем централизованную функцию пуша
+from .git_service import run_git_push
+
 
 logger = logging.getLogger(__name__)
 
@@ -17,34 +23,6 @@ MIN_INTERVAL_SEC = 21600  # 6 часов
 # Единый целевой файл отчетов системы
 SYSTEM_REPORT_FILE = "/home/fujitsu-u745/Projects/digital_living_room/system_report_data.json"
 EVENTS_JSON_FILE = "/home/fujitsu-u745/Projects/digital_living_room/events.json"
-REPO_DIR = "/home/fujitsu-u745/Projects/digital_living_room" # Путь к корню репозитория
-
-def run_git_push(commit_message="Auto-update system metrics"):
-    """Автоматический коммит и пуш обновленного JSON в репозиторий"""
-    try:
-        # Переходим в директорию репозитория
-        os.chdir(REPO_DIR)
-        
-        # Проверяем статус git
-        status_res = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, check=True)
-        if not status_res.stdout.strip():
-            logger.info("CRON Git: Нет изменений для коммита.")
-            return
-
-        # Добавляем файлы отчетов
-        subprocess.run(["git", "add", "system_report_data.json", "events.json"], check=True)
-        
-        # Делаем коммит
-        subprocess.run(["git", "commit", "-m", commit_message], check=True)
-        
-        # Пушим в мастер (или текущую ветку)
-        subprocess.run(["git", "push", "origin", "main"], check=True)
-        logger.info("CRON Git: Изменения успешно отправлены в GitHub (git push выполнен).")
-        
-    except subprocess.CalledProcessError as e:
-        logger.error(f"CRON Git Ошибка выполнения команд: {e}")
-    except Exception as e:
-        logger.error(f"CRON Git Непредвиденная ошибка: {e}")
 
 def update_pwa_dashboard_metrics(force: bool = False):
     current_time = time.time()
@@ -183,8 +161,11 @@ def update_pwa_dashboard_metrics(force: bool = False):
         except Exception as e:
             logger.error(f"CRON: Ошибка записи в events.json: {e}")
 
-        # Шаг 4: Выполнение Git Push для отправки на GitHub
-        run_git_push(f"Auto-update metrics: {formatted_date}")
+        # Шаг 4: Выполнение Git Push через общий сервис для JSON-отчетов
+        run_git_push(
+            files_to_add=["system_report_data.json", "events.json"],
+            commit_message=f"Auto-update metrics: {formatted_date}"
+        )
 
         with open(LAST_RUN_FILE, "w") as f:
             f.write(str(current_time))

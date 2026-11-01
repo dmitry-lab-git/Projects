@@ -11,7 +11,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 import psycopg2
 
+# Импортируем общий Git сервис
+from .git_service import run_git_push
+
 load_dotenv("/home/fujitsu-u745/Projects/secure_folder/pwa/.env")
+
+# Путь к README в корне репозитория
 README_PATH = Path("/home/fujitsu-u745/Projects/README.md")
 START_MARKER = "<!-- LEDGER_METRICS_START -->"
 END_MARKER = "<!-- LEDGER_METRICS_END -->"
@@ -84,11 +89,21 @@ def update_readme_metrics():
         pattern = re.compile(f"{re.escape(START_MARKER)}.*?{re.escape(END_MARKER)}\\s*", re.DOTALL)
         content = pattern.sub("", content)
     
-    # 2. Вставляем новый блок в самый верх файла, отделяя его пустой строкой от остального текста
+    # Очищаем старый контент от накопившихся разделителей '---' в самом начале оставшегося текста
+    content = re.sub(r"^(\s*---\s*\n*)+", "", content.lstrip())
+    
+    # 2. Вставляем новый блок, добавляя строго ОДИН разделитель перед основным текстом
     new_content = new_block.strip() + "\n\n---\n\n" + content.lstrip()
     
     README_PATH.write_text(new_content, encoding="utf-8")
-    logger.info(f"README updated successfully and placed at the top: {README_PATH}")
+    logger.info(f"README updated successfully and cleaned from multiple dividers: {README_PATH}")
+    
+    # 3. Автоматический Git Push для README.md
+    now_str = datetime.now(ZoneInfo("Asia/Almaty")).strftime("%d.%m.%Y %H:%M:%S")
+    run_git_push(
+        files_to_add=["README.md"],
+        commit_message=f"docs(readme): auto-update metrics {now_str}"
+    )
     return True
 
 if __name__ == "__main__":
