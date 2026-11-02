@@ -11,14 +11,13 @@ import logging
 from datetime import datetime, timezone, timedelta
 
 from pwa.db import get_household_session
-# Импортируем централизованную функцию пуша
 from .git_service import run_git_push
-
 
 logger = logging.getLogger(__name__)
 
 LAST_RUN_FILE = ".pwa_metrics_last_run"
-MIN_INTERVAL_SEC = 21600  # 6 часов
+MIN_INTERVAL_SEC = 21600  # 6 часов для обычных запусков
+GIT_DEBOUNCE_SEC = 90     # 90 сек защита от дублей как в Actions
 
 # Единый целевой файл отчетов системы
 SYSTEM_REPORT_FILE = "/home/fujitsu-u745/Projects/digital_living_room/system_report_data.json"
@@ -27,11 +26,16 @@ EVENTS_JSON_FILE = "/home/fujitsu-u745/Projects/digital_living_room/events.json"
 def update_pwa_dashboard_metrics(force: bool = False):
     current_time = time.time()
     
-    if not force and os.path.exists(LAST_RUN_FILE):
+    # --- ЗАЩИТА ОТ ДУБЛЕЙ ---
+    if os.path.exists(LAST_RUN_FILE):
         with open(LAST_RUN_FILE, "r") as f:
             try:
                 last_run = float(f.read().strip())
-                if current_time - last_run < MIN_INTERVAL_SEC:
+                # для force - 90с, для cron - 6 часов
+                interval = GIT_DEBOUNCE_SEC if force else MIN_INTERVAL_SEC
+                elapsed = current_time - last_run
+                if elapsed < interval:
+                    logger.info(f"CRON: скип обновления, прошло только {elapsed:.0f}с < {interval}с (force={force})")
                     return
             except ValueError:
                 pass
@@ -65,7 +69,7 @@ def update_pwa_dashboard_metrics(force: bool = False):
     except Exception as e:
         logger.error(f"CRON Ошибка Ledger: {str(e)}")
 
-    # Шаг 2: Обращение к Household БД (Textile & Current Month Infrastructure)
+    # Шаг 2: Обращение к Household БД
     try:
         household_session_gen = get_household_session()
         if hasattr(household_session_gen, "__next__") or hasattr(household_session_gen, "__iter__"):
@@ -133,7 +137,7 @@ def update_pwa_dashboard_metrics(force: bool = False):
     except Exception as e:
         logger.error(f"CRON Ошибка подключения к базе Household: {e}")
 
-    # Шаг 3: Сборка и запись в единый system_report_data.json
+    # Шаг 3: Сборка и запись
     try:
         tz_almaty = timezone(timedelta(hours=5))
         formatted_date = datetime.now(tz_almaty).strftime("%d.%m.%Y %H:%M:%S")
@@ -150,7 +154,6 @@ def update_pwa_dashboard_metrics(force: bool = False):
             json.dump(full_payload, f, ensure_ascii=False, indent=4)
         logger.info("CRON: Данные успешно записаны в system_report_data.json.")
 
-        # Вспомогательный events.json
         try:
             events_payload = {
                 "transactionsCount": digital_metrics["transactions"],
@@ -161,14 +164,21 @@ def update_pwa_dashboard_metrics(force: bool = False):
         except Exception as e:
             logger.error(f"CRON: Ошибка записи в events.json: {e}")
 
-        # Шаг 4: Выполнение Git Push через общий сервис для JSON-отчетов
-        run_git_push(
-            files_to_add=["system_report_data.json", "events.json"],
+        # Шаг 4: Git Push
+        pushed = run_git_push(
+            files_to_add=[
+                "digital_living_room/system_report_data.json",
+                "digital_living_room/events.json"
+            ],
             commit_message=f"Auto-update metrics: {formatted_date}"
         )
 
-        with open(LAST_RUN_FILE, "w") as f:
-            f.write(str(current_time))
+        # Пишем LAST_RUN только после успешной попытки, чтобы дебаунс работал
+        if pushed:
+            with open(LAST_RUN_FILE, "w") as f:
+                f.write(str(current_time))
+        else:
+            logger.warning("CRON: Пуш не удался, LAST_RUN не обновляем для ретрая")
 
     except Exception as general_error:
         logger.error(f"CRON Критическая ошибка: {str(general_error)}", exc_info=True)

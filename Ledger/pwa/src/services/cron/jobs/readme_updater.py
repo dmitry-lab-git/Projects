@@ -4,6 +4,7 @@ Runs daily 00:00 via APScheduler integrated in Reflex PWA.
 """
 import os
 import re
+import time
 import logging
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -11,16 +12,18 @@ from pathlib import Path
 from dotenv import load_dotenv
 import psycopg2
 
-# Импортируем общий Git сервис
 from .git_service import run_git_push
 
 load_dotenv("/home/fujitsu-u745/Projects/secure_folder/pwa/.env")
 
-# Путь к README в корне репозитория
 README_PATH = Path("/home/fujitsu-u745/Projects/README.md")
 START_MARKER = "<!-- LEDGER_METRICS_START -->"
 END_MARKER = "<!-- LEDGER_METRICS_END -->"
 DB_URL = os.getenv("DATABASE_URL")
+
+LAST_RUN_FILE = Path(".readme_metrics_last_run")
+MIN_INTERVAL_SEC = 21600  # 6 часов для cron
+GIT_DEBOUNCE_SEC = 90     # защита от дублей
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("readme_updater")
@@ -54,7 +57,6 @@ def get_counts():
     return counts
 
 def build_markdown_block(counts: dict) -> str:
-    # Get time for Asia/Almaty zone (Pavlodar / Astana)
     now = datetime.now(ZoneInfo("Asia/Almaty")).strftime("%d.%m.%Y %H:%M:%S")
     block = f"""{START_MARKER}
 ## 📊 Ledger SystemMetrics (auto-updated: {now})
@@ -72,8 +74,22 @@ _Updated daily at 00:00 (Pavlodar, Astana) via APScheduler (Reflex PWA backend)_
 {END_MARKER}"""
     return block
 
-def update_readme_metrics():
-    logger.info("Starting README metrics update...")
+def update_readme_metrics(force: bool = False):
+    current_time = time.time()
+
+    # --- ЗАЩИТА ОТ ДУБЛЕЙ ---
+    if LAST_RUN_FILE.exists():
+        try:
+            last_run = float(LAST_RUN_FILE.read_text().strip())
+            interval = GIT_DEBOUNCE_SEC if force else MIN_INTERVAL_SEC
+            elapsed = current_time - last_run
+            if elapsed < interval:
+                logger.info(f"README CRON: скип, прошло только {elapsed:.0f}с < {interval}с (force={force})")
+                return False
+        except ValueError:
+            pass
+
+    logger.info(f"Starting README metrics update... force={force}")
     counts = get_counts()
     logger.info(f"Counts: {counts}")
     
@@ -84,27 +100,28 @@ def update_readme_metrics():
     content = README_PATH.read_text(encoding="utf-8")
     new_block = build_markdown_block(counts)
     
-    # 1. Удаляем старый блок метрик из любого места, если он уже существовал
     if START_MARKER in content and END_MARKER in content:
         pattern = re.compile(f"{re.escape(START_MARKER)}.*?{re.escape(END_MARKER)}\\s*", re.DOTALL)
         content = pattern.sub("", content)
     
-    # Очищаем старый контент от накопившихся разделителей '---' в самом начале оставшегося текста
     content = re.sub(r"^(\s*---\s*\n*)+", "", content.lstrip())
-    
-    # 2. Вставляем новый блок, добавляя строго ОДИН разделитель перед основным текстом
     new_content = new_block.strip() + "\n\n---\n\n" + content.lstrip()
     
     README_PATH.write_text(new_content, encoding="utf-8")
-    logger.info(f"README updated successfully and cleaned from multiple dividers: {README_PATH}")
+    logger.info(f"README updated successfully: {README_PATH}")
     
-    # 3. Автоматический Git Push для README.md
     now_str = datetime.now(ZoneInfo("Asia/Almaty")).strftime("%d.%m.%Y %H:%M:%S")
-    run_git_push(
+    pushed = run_git_push(
         files_to_add=["README.md"],
         commit_message=f"docs(readme): auto-update metrics {now_str}"
     )
-    return True
+
+    if pushed:
+        LAST_RUN_FILE.write_text(str(current_time))
+    else:
+        logger.warning("README CRON: пуш не удался, LAST_RUN не обновляем")
+
+    return pushed
 
 if __name__ == "__main__":
-    update_readme_metrics()
+    update_readme_metrics(force=True)

@@ -4,39 +4,39 @@ Service for automatic Git actions (commit and push) for system metrics updates.
 import os
 import subprocess
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
 REPO_DIR = "/home/fujitsu-u745/Projects"
 
 def run_git_push(files_to_add: list, commit_message: str):
-    """
-    Выполняет git add для переданного списка файлов, делает коммит и пушит в репозиторий.
-    """
     try:
-        # Переходим в директорию репозитория
         os.chdir(REPO_DIR)
-        
-        # Проверяем статус git только для целевых файлов
-        status_res = subprocess.run(["git", "status", "--porcelain"] + files_to_add, capture_output=True, text=True, check=True)
-        if not status_res.stdout.strip():
-            logger.info(f"CRON Git: Нет изменений для файлов {files_to_add}. Пропуск коммита.")
+        # Сначала проверяем что файлы реально существуют
+        existing = [f for f in files_to_add if os.path.exists(os.path.join(REPO_DIR, f))]
+        if not existing:
+            logger.error(f"CRON Git: файлов не найдено в {REPO_DIR}: {files_to_add}")
             return False
 
-        # Добавляем файлы
-        subprocess.run(["git", "add"] + files_to_add, check=True)
+        subprocess.run(["git", "add", "-f"] + existing, check=True)
         
-        # Делаем коммит
-        subprocess.run(["git", "commit", "-m", commit_message], check=True)
+        # Проверяем есть ли что коммитить
+        result = subprocess.run(["git", "diff", "--cached", "--quiet"])
+        if result.returncode != 0: # есть изменения
+            subprocess.run(["git", "commit", "-m", commit_message], check=True)
+        else:
+            logger.info(f"CRON Git: нет изменений для {existing}, пропускаем коммит")
+            return True
         
-        # Пушим в origin main
-        subprocess.run(["git", "push", "origin", "main"], check=True)
-        logger.info(f"CRON Git: Изменения файлов {files_to_add} успешно отправлены в GitHub.")
-        return True
-        
-    except subprocess.CalledProcessError as e:
-        logger.error(f"CRON Git Ошибка выполнения команд для {files_to_add}: {e}")
+        for attempt in range(3):
+            try:
+                subprocess.run(["git", "push", "origin", "main"], check=True, timeout=60)
+                logger.info(f"CRON Git: {existing} -> OK")
+                return True
+            except subprocess.CalledProcessError:
+                time.sleep(5 * (attempt + 1))
         return False
     except Exception as e:
-        logger.error(f"CRON Git Непредвиденная ошибка: {e}")
+        logger.error(f"CRON Git Ошибка: {e}")
         return False
