@@ -19,10 +19,16 @@
     <!-- Подключение стилей -->
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Дополнительная гарантия корректного отступа на мобильных под фиксированную плашку */
         @media (max-width: 768px) {
             .container {
                 padding-top: 75px !important;
+            }
+            #version-badge {
+                font-size: 0.75em !important;
+                padding: 2px 8px !important;
+                letter-spacing: 0.3px !important;
+                background: rgba(255, 255, 255, 0.04) !important;
+                border: 1px solid rgba(255, 255, 255, 0.06) !important;
             }
         }
     </style>
@@ -36,7 +42,7 @@
         <span class="pulse-dot"></span>
         <span>Live Sync: last update <strong id="live-sync-time">---</strong></span>
     </div>
-    <div id="version-badge" style="justify-self:end; opacity:0.7; font-size:0.85em; font-weight:500; letter-spacing:0.5px; background: rgba(255,255,255,0.08); padding:3px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+    <div id="version-badge" style="justify-self:end; opacity:0.6; font-size:0.8em; font-weight:400; letter-spacing:0.4px; background: rgba(255,255,255,0.04); padding:2px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
         VER-004 | UVR-042
     </div>
 </div>
@@ -73,7 +79,7 @@
                     <li><span class="metric-label">Free Construction Boxes:</span> <span id="gardening-free-const-boxes" class="val">0 units</span></li>
                 </ul>
             </div>
-            <div class="timestamp">auto-updated: 27.10.2026 23:45:00</div>
+            <div class="timestamp" id="gardening-timestamp">auto-updated: 06.11.2026 23:30:27</div>
         </div>
 
         <!-- 3. Textile -->
@@ -100,7 +106,7 @@
                     <li><span class="metric-label">Outsourced Count:</span> <span id="repair-outsourced-count" class="val">0</span></li>
                 </ul>
             </div>
-            <div class="timestamp">auto-updated: 27.10.2026 23:45:00</div>
+            <div class="timestamp" id="repair-timestamp">auto-updated: 06.11.2026 23:30:27</div>
         </div>
 
         <!-- 5. Material & Resource Accounting -->
@@ -116,9 +122,7 @@
                         <div class="waste-col-header">📦 By Resource</div>
                         <table>
                             <colgroup>
-                                <col>
-                                <col>
-                                <col>
+                                <col><col><col>
                             </colgroup>
                             <thead>
                                 <tr>
@@ -166,9 +170,7 @@
                         <div class="waste-col-header">📍 By Disposal Point</div>
                         <table>
                             <colgroup>
-                                <col>
-                                <col>
-                                <col>
+                                <col><col><col>
                             </colgroup>
                             <thead>
                                 <tr>
@@ -220,7 +222,6 @@
             <a href="https://www.instagram.com/dmitry_lab_social/" target="_blank">Instagram</a> | 
             <a href="https://www.facebook.com/profile.php?id=61595870971588" target="_blank">Facebook</a>
         </p>
-        <!-- Блок отображения версии по ТЗ -->
         <div id="build-info" class="build-info">
             build: <span id="build-sha">---</span> | <span id="build-time">---</span>
         </div>
