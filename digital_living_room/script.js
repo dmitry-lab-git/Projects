@@ -4,8 +4,7 @@ const METRICS_FILE = 'system_report_data.json';
 // Слой 1 + Слой 3: Загрузка всех динамических метрик из system_report_data.json
 async function loadDashboardMetrics() {
     try {
-        // Добавляем анти-кэш метку времени по ТЗ
-        const res = await fetch(`${METRICS_FILE}?_v=${Date.now()}`, {
+        const res = await fetch(`system_report_data.json?_v=${Date.now()}`, {
             cache: 'no-store',
             headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
         });
@@ -13,13 +12,13 @@ async function loadDashboardMetrics() {
         if (res.ok) {
             const data = await res.json();
             
-            // --- 🟢 Обновление верхней плашки Live Sync ---
+            // Заполнение Live Sync времени
             const liveTimeElem = document.getElementById('live-sync-time');
             if (liveTimeElem && data.updated_at) {
                 liveTimeElem.innerText = data.updated_at;
             }
 
-            // --- 🏷️ Обновление бейджа версии из БД ---
+            // Заполнение версии (VER-004 · UVR-042)
             if (data.version) {
                 const verMetaElem = document.getElementById('version-meta');
                 if (verMetaElem) {
