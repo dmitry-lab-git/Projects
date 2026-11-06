@@ -35,7 +35,7 @@ body {
     overflow-x: hidden;
 }
 
-/* Sticky OS Statusbar - единственный источник правды */
+/* Sticky OS Statusbar */
 #os-statusbar {
     position: sticky;
     top: 0;
@@ -208,18 +208,6 @@ header p {
     font-weight: 500;
 }
 
-.status-pill {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    background: rgba(74, 222, 128, 0.15);
-    color: var(--accent-green);
-    border: 1px solid rgba(74, 222, 128, 0.3);
-}
-
 .val {
     font-weight: 600;
     text-align: right;
@@ -228,29 +216,6 @@ header p {
 
 .val.wrap {
     white-space: normal;
-}
-
-.timestamp {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    text-align: right;
-    border-top: 1px dashed rgba(255, 255, 255, 0.08);
-    padding-top: 12px;
-    margin-top: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
-}
-
-.timestamp::before {
-    content: "";
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    background-color: var(--accent-green);
-    border-radius: 50%;
-    box-shadow: 0 0 6px var(--accent-green);
 }
 
 .waste-grid {
@@ -343,33 +308,63 @@ header p {
     }
 }
 
-footer {
+/* Новый эргономичный футер согласно ТЗ */
+.site-footer {
     margin-top: 48px;
     text-align: center;
     color: var(--text-muted);
     font-size: 0.88rem;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     padding-top: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
 }
 
-footer a {
-    color: var(--accent-blue);
+.footer-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.site-footer .badge {
+    font-size: 11px;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.site-footer div:nth-child(2) {
+    color: var(--text-muted);
+}
+
+.site-footer div:nth-child(2) span,
+.site-footer .lab-name {
+    color: #5eead4;
+}
+
+.site-footer .links a {
+    color: #38bdf8;
     text-decoration: none;
-    margin: 0 10px;
-    display: inline-block;
-    padding: 4px 0;
     transition: color 0.2s;
 }
 
-footer a:hover {
+.site-footer .links a:hover {
     color: #7dd3fc;
     text-decoration: underline;
 }
 
-.build-info {
-    margin-top: 12px;
+.site-footer .tech {
+    font-family: monospace;
     font-size: 11px;
-    color: var(--text-dim);
+    opacity: 0.35;
     letter-spacing: 0.03em;
 }
 

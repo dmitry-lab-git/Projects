@@ -1,72 +1,76 @@
 // Путь к файлу метрик
 const METRICS_FILE = 'system_report_data.json';
+const VERSION_FILE = 'version.json';
 
 let globalLastDate = null;
 
-// Универсальный парсер дат (поддерживает DD.MM.YYYY HH:mm:ss и ISO-форматы)
-function parseFlexibleDate(raw) {
+// Строгий парсер даты по ТЗ (DD.MM.YYYY HH:MM:SS) из поля updated_at
+function parseOSDate(raw) {
     if (!raw) return null;
     if (raw instanceof Date) return raw;
-    if (typeof raw === 'number') return new Date(raw);
     
-    let parsed = new Date(raw);
-    if (!isNaN(parsed)) return parsed;
-
-    try {
-        const parts = String(raw).split(/[\.\s:]/);
-        if (parts.length >= 6) {
-            const day = parseInt(parts[0], 10);
-            const month = parseInt(parts[1], 10) - 1;
-            const year = parseInt(parts[2], 10);
-            const hour = parseInt(parts[3], 10);
-            const minute = parseInt(parts[4], 10);
-            const second = parseInt(parts[5], 10);
-            return new Date(year, month, day, hour, minute, second);
-        }
-    } catch (e) {
-        console.warn('parseFlexibleDate error:', e);
-    }
-    return null;
+    const s = String(raw).trim();
+    const m = s.match(/(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2}):(\d{2})/);
+    if (!m) return null;
+    
+    return new Date(+m[3], +m[2]-1, +m[1], +m[4], +m[5], +m[6]);
 }
 
-// Форматирование относительного времени для Heartbeat Sync
+// Форматирование относительного времени (считается один раз при загрузке, без setInterval)
 function formatRelativeTime(date) {
-    if (!date || !(date instanceof Date) || isNaN(date)) return 'recently';
-    const diffSec = Math.floor((new Date() - date) / 1000);
+    if (!date || !(date instanceof Date) || isNaN(date)) return '(recently)';
+    const diffSec = Math.floor((Date.now() - date.getTime()) / 1000);
 
-    if (diffSec < 10) return 'just now';
-    if (diffSec < 60) return `${diffSec}s ago`;
+    if (diffSec < 60) return '(just now)';
     if (diffSec < 3600) {
         const mins = Math.floor(diffSec / 60);
-        return `${mins}m ago`;
+        return `(${mins}m ago)`;
     }
     if (diffSec < 86400) {
         const hours = Math.floor(diffSec / 3600);
-        return `${hours}h ago`;
+        return `(${hours}h ago)`;
     }
     const days = Math.floor(diffSec / 86400);
-    return `${days}d ago`;
+    return `(${days}d ago)`;
 }
 
 // Обновление живого статуса в шапке
-function updateLiveSyncDisplay() {
-    const textElem = document.getElementById('live-sync-text');
-    if (!textElem) return;
+function updateLiveSyncDisplay(parsedDate, rawStr) {
+    const textElem = document.getElementById('live-text') || document.getElementById('live-sync-text');
+    if (!textElem || !parsedDate) return;
 
-    if (!globalLastDate) {
-        textElem.innerText = 'Living · online';
-        return;
-    }
-
-    const rel = formatRelativeTime(globalLastDate);
-    textElem.innerText = `Living · ${rel}`;
+    const relFormatted = formatRelativeTime(parsedDate);
+    textElem.innerText = `Living · last sync: ${rawStr} ${relFormatted}`;
 }
 
 // Загрузка метрик и данных
 async function loadDashboardMetrics() {
     try {
         const timestamp = Date.now();
-        const res = await fetch(`${METRICS_FILE}?t=${timestamp}`, {
+        
+        // 1. Загрузка version.json с обходом кэша (если требуется)
+        try {
+            const verRes = await fetch(`${VERSION_FILE}?v=${timestamp}`, { cache: 'no-store' });
+            if (verRes.ok) {
+                const verData = await verRes.json();
+                const verMeta = document.getElementById('version-meta');
+                if (verMeta) {
+                    const ver = verData.version || 'VER-004';
+                    const uvr = verData.uvr || 'UVR-044';
+                    verMeta.innerText = `${ver} · ${uvr}`;
+                }
+
+                const shaFull = verData.sha || '';
+                const sha7 = shaFull.slice(0, 7) || '112bf30';
+                const footerSha = document.getElementById('footer-build-sha');
+                if (footerSha) footerSha.innerText = sha7;
+            }
+        } catch (ve) {
+            console.warn('version.json load warning:', ve);
+        }
+
+        // 2. Загрузка system_report_data.json с обходом кэша
+        const res = await fetch(`${METRICS_FILE}?v=${timestamp}`, {
             cache: 'no-store',
             headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
         });
@@ -74,48 +78,44 @@ async function loadDashboardMetrics() {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         
         const data = await res.json();
-        console.log('VER:', data);
+        console.log('OS Data loaded:', data);
 
-        // 1. Заполнение версии в статусбаре
-        const verMeta = document.getElementById('version-meta');
-        if (verMeta) {
-            const ver = (data.version && data.version.ver) || 'VER-004';
-            const uvr = (data.version && data.version.uvr) || 'UVR-042';
-            verMeta.innerText = `${ver} · ${uvr}`;
+        // Версия из блока version в system_report_data.json
+        if (data.version) {
+            const verMeta = document.getElementById('version-meta');
+            if (verMeta) {
+                const ver = data.version.ver || 'VER-004';
+                const uvr = data.version.uvr || 'UVR-044';
+                verMeta.innerText = `${ver} · ${uvr}`;
+            }
         }
 
-        // 2. Время синхронизации и тултип
-        const lastUpdateRaw = data.updated_at || data.last_update || data.build_time;
-        globalLastDate = parseFlexibleDate(lastUpdateRaw);
-        updateLiveSyncDisplay();
+        // Время синхронизации из updated_at
+        const updatedStr = data.updated_at;
+        globalLastDate = parseOSDate(updatedStr);
+        
+        if (globalLastDate && updatedStr) {
+            updateLiveSyncDisplay(globalLastDate, updatedStr);
+
+            const footerSyncTime = document.getElementById('footer-sync-time');
+            if (footerSyncTime) {
+                footerSyncTime.innerText = updatedStr;
+            }
+        }
 
         const liveIndicator = document.getElementById('live-indicator');
         if (liveIndicator && globalLastDate) {
             const exactTimeStr = globalLastDate.toLocaleString('ru-RU');
-            liveIndicator.title = `Last sync: ${exactTimeStr}\nХозяйство на связи`;
+            liveIndicator.title = `Last sync: ${updatedStr}\nХозяйство на связи`;
         }
 
-        // 3. Метки карточек (.timestamp)
-        if (lastUpdateRaw) {
-            document.querySelectorAll('.timestamp').forEach(el => {
-                el.innerText = `auto-updated: ${lastUpdateRaw}`;
-            });
-        }
-
-        // 4. Информация о билде в футере
+        // Информация о билде в футере
         const sha = localStorage.getItem('home_os_sha') || 'local';
-        const shortSha = sha !== 'local' ? sha.slice(0, 7) : 'drl-os';
-        const buildShaElem = document.getElementById('build-sha');
+        const shortSha = sha !== 'local' ? sha.slice(0, 7) : '112bf30';
+        const buildShaElem = document.getElementById('build-sha') || document.getElementById('footer-build-sha');
         if (buildShaElem) buildShaElem.innerText = shortSha;
 
-        const buildTimeElem = document.getElementById('build-time');
-        if (buildTimeElem && globalLastDate) {
-            buildTimeElem.innerText = globalLastDate.toLocaleString('ru-RU');
-        } else if (buildTimeElem) {
-            buildTimeElem.innerText = localStorage.getItem('home_os_time') || new Date().toLocaleString('ru-RU');
-        }
-
-        // 5. Метрики Digital Core
+        // 3. Метрики Digital Core
         if (data.digital) {
             const dig = data.digital;
             const txCountElem = document.getElementById('tx-count');
@@ -133,7 +133,7 @@ async function loadDashboardMetrics() {
             }
         }
 
-        // 6. Gardening
+        // 4. Gardening
         if (data.gardening) {
             const gar = data.gardening;
             const garCard = document.querySelector('.card.gardening');
@@ -148,7 +148,7 @@ async function loadDashboardMetrics() {
             }
         }
 
-        // 7. Repair & DIY
+        // 5. Repair & DIY
         if (data.repair) {
             const rep = data.repair;
             const repCard = document.querySelector('.card.repair');
@@ -163,7 +163,7 @@ async function loadDashboardMetrics() {
             }
         }
 
-        // 8. Textile
+        // 6. Textile
         if (data.textile) {
             const tex = data.textile;
             const texCard = document.querySelector('.card.textile');
@@ -177,7 +177,7 @@ async function loadDashboardMetrics() {
             }
         }
 
-        // 9. Recycling
+        // 7. Recycling
         if (data.recycling) {
             const rec = data.recycling;
             const recCard = document.querySelector('.card.materials.recycling-card') || document.querySelector('.card.recycling');
@@ -191,17 +191,12 @@ async function loadDashboardMetrics() {
 
     } catch (e) {
         console.warn('Ошибка загрузки данных дашборда:', e);
-        const textElem = document.getElementById('live-sync-text');
+        const textElem = document.getElementById('live-text') || document.getElementById('live-sync-text');
         if (textElem) {
             textElem.innerText = 'Living · error';
         }
     }
 }
-
-// Периодическое обновление относительного времени каждые 30 секунд
-setInterval(() => {
-    updateLiveSyncDisplay();
-}, 30000);
 
 const REPO = 'dmitry-lab-git/Projects';
 const BRANCH = 'main';
@@ -233,21 +228,17 @@ async function checkForUpdate() {
 }
 
 function updateBuildUI(sha) {
-    const shortSha = sha ? sha.slice(0, 7) : 'drl-os';
-    const buildTime = localStorage.getItem('home_os_time') || new Date().toLocaleString('ru-RU');
-    const buildShaElem = document.getElementById('build-sha');
-    const buildTimeElem = document.getElementById('build-time');
-    
+    const shortSha = sha ? sha.slice(0, 7) : '112bf30';
+    const buildShaElem = document.getElementById('build-sha') || document.getElementById('footer-build-sha');
     if (buildShaElem) buildShaElem.innerText = shortSha;
-    if (buildTimeElem) buildTimeElem.innerText = buildTime;
 }
 
 updateBuildUI(localStorage.getItem('home_os_sha'));
 loadDashboardMetrics();
 
+// Проверка обновлений репозитория (раз в минуту)
 setInterval(() => {
     checkForUpdate();
-    loadDashboardMetrics();
 }, 60000);
 
 checkForUpdate();
@@ -255,3 +246,4 @@ checkForUpdate();
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister()));
 }
+```[cite: 7, 8, 10]

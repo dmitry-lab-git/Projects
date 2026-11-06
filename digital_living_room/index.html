@@ -27,7 +27,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        /* Липкий статусбар строго вверху */
+        /* Sticky OS Statusbar */
         #os-statusbar {
             position: sticky;
             top: 0;
@@ -100,12 +100,12 @@
 </head>
 <body>
 
-<!-- Единый Sticky статусбар (первый элемент тела) -->
+<!-- Единый Sticky статусбар -->
 <div id="os-statusbar">
     <div id="version-meta">VER-004 · UVR-044</div>
     <div id="live-indicator" title="Хозяйство на связи">
         <span class="live-dot"></span>
-        <span id="live-sync-text">Living · connecting...</span>
+        <span id="live-text">Living · last sync: ---</span>
     </div>
 </div>
 
@@ -127,7 +127,6 @@
                     <li><span class="metric-label">PWA Staging Flow:</span> <span class="val">320</span></li>
                 </ul>
             </div>
-            <div class="timestamp">auto-updated: 06.11.2026 23:30:27</div>
         </div>
 
         <!-- 2. Gardening -->
@@ -141,7 +140,6 @@
                     <li><span class="metric-label">Free Construction Boxes:</span> <span id="gardening-free-const-boxes" class="val">1 unit</span></li>
                 </ul>
             </div>
-            <div class="timestamp" id="gardening-timestamp">auto-updated: 06.11.2026 23:30:27</div>
         </div>
 
         <!-- 3. Textile -->
@@ -154,7 +152,6 @@
                     <li><span class="metric-label">Material Consumption:</span> <span class="val">82.07 running m</span></li>
                 </ul>
             </div>
-            <div class="timestamp">auto-updated: 06.11.2026 23:30:27</div>
         </div>
 
         <!-- 4. Repair & DIY -->
@@ -168,7 +165,6 @@
                     <li><span class="metric-label">Outsourced Count:</span> <span id="repair-outsourced-count" class="val">8</span></li>
                 </ul>
             </div>
-            <div class="timestamp" id="repair-timestamp">auto-updated: 06.11.2026 23:30:27</div>
         </div>
 
         <!-- 5. Material & Resource Accounting -->
@@ -268,20 +264,23 @@
                     </div>
                 </div>
             </div>
-            <div class="timestamp">auto-updated: 06.11.2026 23:30:27</div>
         </div>
     </div>
 
-    <footer>
-        <p>Digital Living Room &copy; 2026 (Founded: Oct 27, 2026)</p>
-        <p>A subproject of <strong style="color: var(--accent-teal, #4cd137);">Dmitry Lab</strong> (active since July 2, 2023)</p>
-        <p>
-            <a href="https://github.com/dmitry-lab-git/Projects" target="_blank">GitHub</a> | 
-            <a href="https://www.instagram.com/dmitry_lab_social/" target="_blank">Instagram</a> | 
+    <!-- Новый эргономичный футер -->
+    <footer class="site-footer">
+        <div class="footer-top">
+            <span>Digital Living Room © 2026</span>
+            <span class="badge">founded Oct 27, 2026</span>
+        </div>
+        <div>Subproject of Dmitry Lab since July 2, 2023</div>
+        <div class="links">
+            <a href="https://github.com/dmitry-lab-git/Projects" target="_blank">GitHub</a> · 
+            <a href="https://www.instagram.com/dmitry_lab_social/" target="_blank">Instagram</a> · 
             <a href="https://www.facebook.com/profile.php?id=61595870971588" target="_blank">Facebook</a>
-        </p>
-        <div id="build-info" class="build-info">
-            build: <span id="build-sha">---</span> | <span id="build-time">---</span>
+        </div>
+        <div class="tech">
+            ● auto-updated: <span id="footer-sync-time">07.11.2026 00:06:37</span> | build <span id="footer-build-sha">112bf30</span>
         </div>
     </footer>
 </div>
