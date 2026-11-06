@@ -11,21 +11,21 @@
         "material_consumption_m": 82.07
     },
     "repair": {
-        "total_projects": "0",
-        "completed_projects": "0",
-        "planning_projects": "0",
-        "outsourced_count": "0",
-        "outsource_share_percent": "0.0",
-        "disposed_count": "0"
+        "total_projects": "23",
+        "completed_projects": "22",
+        "planning_projects": "1",
+        "outsourced_count": "8",
+        "outsource_share_percent": "34.8",
+        "disposed_count": "1"
     },
     "gardening": {
-        "total_flowers": 0,
-        "flowering_count": 0,
-        "seeds_germinating": 0,
-        "free_const_boxes_count": 0,
-        "free_seedling_boxes_count": 0,
-        "free_transplant_boxes_count": 0,
-        "active_alerts_count": 0
+        "total_flowers": 18,
+        "flowering_count": 5,
+        "seeds_germinating": 2,
+        "free_const_boxes_count": 1,
+        "free_seedling_boxes_count": 5,
+        "free_transplant_boxes_count": 7,
+        "active_alerts_count": 1
     },
     "recycling": {
         "period": "November 2026",
@@ -68,5 +68,5 @@
             }
         ]
     },
-    "updated_at": "06.11.2026 22:51:47"
+    "updated_at": "06.11.2026 22:53:48"
 }
