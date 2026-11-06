@@ -43,6 +43,46 @@ async function loadDashboardMetrics() {
                 }
             }
             
+            // --- 🌿 Обновление блока Gardening ---
+            if (data.gardening) {
+                const gar = data.gardening;
+                const garCard = document.querySelector('.card.gardening');
+                if (garCard) {
+                    const garVals = garCard.querySelectorAll('.val');
+                    if (garVals.length >= 4) {
+                        garVals[0].innerText = `${gar.total_flowers || 0} units`;
+                        garVals[1].innerText = `${gar.flowering_count || 0} units`;
+                        garVals[2].innerText = `${gar.seeds_germinating || 0} units`;
+                        garVals[3].innerText = `${gar.free_const_boxes_count || 0} units`;
+                    }
+                    
+                    const garTime = garCard.querySelector('.timestamp');
+                    if (garTime && data.updated_at) {
+                        garTime.innerText = `auto-updated: ${data.updated_at}`;
+                    }
+                }
+            }
+
+            // --- 🛠️ Обновление блока Repair & DIY ---
+            if (data.repair) {
+                const rep = data.repair;
+                const repCard = document.querySelector('.card.repair');
+                if (repCard) {
+                    const repVals = repCard.querySelectorAll('.val');
+                    if (repVals.length >= 4) {
+                        repVals[0].innerText = rep.total_projects || 0;
+                        repVals[1].innerText = rep.completed_projects || 0;
+                        repVals[2].innerText = rep.planning_projects || 0;
+                        repVals[3].innerText = rep.outsourced_count || 0;
+                    }
+                    
+                    const repTime = repCard.querySelector('.timestamp');
+                    if (repTime && data.updated_at) {
+                        repTime.innerText = `auto-updated: ${data.updated_at}`;
+                    }
+                }
+            }
+
             // --- 🧵 Обновление блока Textile ---
             if (data.textile) {
                 const tex = data.textile;
@@ -54,7 +94,7 @@ async function loadDashboardMetrics() {
                         texVals[1].innerText = Number(tex.finished_products || 0).toLocaleString('ru-RU');
                         
                         const consumption = tex.material_consumption_m || 0;
-                        texVals[2].innerText = `${consumption} п.м.`;
+                        texVals[2].innerText = `${consumption} running m`;
                     }
                     
                     const texTime = texCard.querySelector('.timestamp');
