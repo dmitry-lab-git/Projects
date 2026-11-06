@@ -7,29 +7,44 @@ function parseOSDate(raw) {
     const s = String(raw).trim();
     const m = s.match(/(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2}):(\d{2})/);
     if (!m) return null;
-    
     return new Date(+m[3], +m[2]-1, +m[1], +m[4], +m[5], +m[6]);
 }
 
-// Относительное время (считается ровно 1 раз при загрузке)
+// Относительное время
 function formatRelativeTime(date) {
     if (!date || isNaN(date)) return '(recently)';
     const diffSec = Math.floor((Date.now() - date.getTime()) / 1000);
 
     if (diffSec < 60) return '(just now)';
-    if (diffSec < 3600) {
-        const mins = Math.floor(diffSec / 60);
-        return `(${mins}m ago)`;
-    }
-    if (diffSec < 86400) {
-        const hours = Math.floor(diffSec / 3600);
-        return `(${hours}h ago)`;
-    }
-    const days = Math.floor(diffSec / 86400);
-    return `(${days}d ago)`;
+    if (diffSec < 3600) return `(${Math.floor(diffSec / 60)}m ago)`;
+    if (diffSec < 86400) return `(${Math.floor(diffSec / 3600)}h ago)`;
+    return `(${Math.floor(diffSec / 86400)}d ago)`;
 }
 
-// Загрузка метрик и заполнение интерфейса
+// Загрузка данных из GitHub API (последний коммит и хэш билда)
+async function loadGitHubBuild() {
+    try {
+        const res = await fetch('https://api.github.com/repos/dmitry-lab-git/Projects/commits/main', {
+            headers: { 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
+        
+        const commitData = await res.json();
+        const shortSha = commitData.sha.substring(0, 7);
+        
+        // Обновляем хеш билда в футере, если элемент существует
+        const buildShaElem = document.getElementById('footer-build-sha');
+        if (buildShaElem) {
+            buildShaElem.innerText = shortSha;
+        }
+        
+        console.log('GitHub Build loaded:', shortSha);
+    } catch (e) {
+        console.warn('Не удалось загрузить данные из GitHub (лимит или сеть):', e);
+    }
+}
+
+// Загрузка локальных метрик и JSON
 async function loadDashboardMetrics() {
     try {
         const timestamp = Date.now();
@@ -43,7 +58,7 @@ async function loadDashboardMetrics() {
         const data = await res.json();
         console.log('OS Data loaded:', data);
 
-        // 1. Версия в статусбаре из блока version
+        // 1. Версия в статусбаре
         if (data.version) {
             const verMeta = document.getElementById('version-meta');
             if (verMeta) {
@@ -51,33 +66,28 @@ async function loadDashboardMetrics() {
             }
         }
 
-        // 2. Время синхронизации из updated_at
-        const updatedStr = data.updated_at; // "07.11.2026 00:42:18"
+        // 2. Время синхронизации из updated_at (из JSON)
+        const updatedStr = data.updated_at; // "07.11.2026 00:42:18"[cite: 5]
         const parsedDate = parseOSDate(updatedStr);
         
         if (parsedDate && updatedStr) {
             const relFormatted = formatRelativeTime(parsedDate);
             
-            // Верхний статусбар: ● Living · last sync: [дата] (Xm ago)
+            // Верхний статусбар
             const liveText = document.getElementById('live-text') || document.getElementById('live-sync-text');
             if (liveText) {
                 liveText.innerText = `Living · last sync: ${updatedStr} ${relFormatted}`;
             }
 
-            // Заполнение auto-updated во всех карточках
+            // Метки времени во всех карточках
             document.querySelectorAll('.timestamp').forEach(el => {
                 el.innerText = `auto-updated: ${updatedStr}`;
             });
 
-            // Строка в футере
+            // Строка в футере (сохраняем тег с id для динамического SHA билда)
             const footerTechLine = document.getElementById('footer-tech-line');
             if (footerTechLine) {
                 footerTechLine.innerHTML = `● auto-updated: ${updatedStr} | build <span id="footer-build-sha">112bf30</span>`;
-            }
-
-            const liveIndicator = document.getElementById('live-indicator');
-            if (liveIndicator) {
-                liveIndicator.title = `Last sync: ${updatedStr}\nХозяйство на связи`;
             }
         }
 
@@ -85,9 +95,8 @@ async function loadDashboardMetrics() {
         if (data.digital) {
             const dig = data.digital;
             const txCountElem = document.getElementById('tx-count');
-            if (txCountElem) {
-                txCountElem.innerText = Number(dig.transactions || 0).toLocaleString('ru-RU');
-            }
+            if (txCountElem) txCountElem.innerText = Number(dig.transactions || 0).toLocaleString('ru-RU');
+            
             const digCard = document.querySelector('.card.digital');
             if (digCard) {
                 const digVals = digCard.querySelectorAll('.val');
@@ -144,7 +153,7 @@ async function loadDashboardMetrics() {
         }
 
     } catch (e) {
-        console.warn('Ошибка загрузки данных дашборда:', e);
+        console.warn('Ошибка загрузки данных дашборда из JSON:', e);
         const textElem = document.getElementById('live-text') || document.getElementById('live-sync-text');
         if (textElem) {
             textElem.innerText = 'Living · error';
@@ -154,9 +163,9 @@ async function loadDashboardMetrics() {
 
 // Запуск при старте
 loadDashboardMetrics();
+loadGitHubBuild();
 
-// Отключение лишних service worker'ов, если мешают кэшированию
+// Отключение лишних service worker'ов
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister()));
 }
-```[cite: 8, 12]
