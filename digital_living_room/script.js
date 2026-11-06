@@ -1,6 +1,5 @@
-// Путь к файлу метрик и версий
+// Путь к файлу метрик
 const METRICS_FILE = 'system_report_data.json';
-const VERSION_FILE = 'version.json';
 
 let globalLastDate = null;
 
@@ -10,11 +9,9 @@ function parseFlexibleDate(raw) {
     if (raw instanceof Date) return raw;
     if (typeof raw === 'number') return new Date(raw);
     
-    // Стандартный парсинг
     let parsed = new Date(raw);
     if (!isNaN(parsed)) return parsed;
 
-    // Парсинг формата DD.MM.YYYY HH:mm:ss
     try {
         const parts = String(raw).split(/[\.\s:]/);
         if (parts.length >= 6) {
@@ -51,7 +48,7 @@ function formatRelativeTime(date) {
     return `${days}d ago`;
 }
 
-// Обновление отображения живого статуса в шапке
+// Обновление живого статуса в шапке
 function updateLiveSyncDisplay() {
     const textElem = document.getElementById('live-sync-text');
     if (!textElem) return;
@@ -65,82 +62,66 @@ function updateLiveSyncDisplay() {
     textElem.innerText = `Living · ${rel}`;
 }
 
-// Основная функция загрузки метрик и данных
+// Загрузка метрик и данных
 async function loadDashboardMetrics() {
     try {
         const timestamp = Date.now();
-        const [verRes, metRes] = await Promise.allSettled([
-            fetch(`${VERSION_FILE}?t=${timestamp}`, { cache: 'no-store' }),
-            fetch(`${METRICS_FILE}?t=${timestamp}`, { cache: 'no-store' })
-        ]);
+        const res = await fetch(`${METRICS_FILE}?t=${timestamp}`, {
+            cache: 'no-store',
+            headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
+        });
+        
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        
+        const data = await res.json();
+        console.log('VER:', data);
 
-        let versionData = {};
-        if (verRes.status === 'fulfilled' && verRes.value.ok) {
-            versionData = await verRes.value.json();
-        }
-
-        let metricsData = {};
-        if (metRes.status === 'fulfilled' && metRes.value.ok) {
-            metricsData = await metRes.value.json();
-        } else {
-            const altRes = await fetch(`metrics.json?t=${timestamp}`, { cache: 'no-store' });
-            if (altRes.ok) {
-                metricsData = await altRes.json();
-            }
-        }
-
-        console.log('VER:', versionData, metricsData);
-
-        // Заполнение версии (VER-004 · UVR-044) в статусбаре
+        // 1. Заполнение версии в статусбаре
         const verMeta = document.getElementById('version-meta');
         if (verMeta) {
-            const ver = versionData.version || versionData.ver || (metricsData.version && metricsData.version.ver) || 'VER-004';
-            const uvr = versionData.uvr || (metricsData.version && metricsData.version.uvr) || 'UVR-044';
+            const ver = (data.version && data.version.ver) || 'VER-004';
+            const uvr = (data.version && data.version.uvr) || 'UVR-042';
             verMeta.innerText = `${ver} · ${uvr}`;
         }
 
-        // Определение даты последнего обновления из данных
-        const lastUpdateRaw = metricsData.last_update || metricsData.build_time || metricsData.updated_at || (metricsData.version && metricsData.version.date);
+        // 2. Время синхронизации и тултип
+        const lastUpdateRaw = data.updated_at || data.last_update || data.build_time;
         globalLastDate = parseFlexibleDate(lastUpdateRaw);
-
         updateLiveSyncDisplay();
 
-        // Установка тултипа с точным временем
         const liveIndicator = document.getElementById('live-indicator');
         if (liveIndicator && globalLastDate) {
             const exactTimeStr = globalLastDate.toLocaleString('ru-RU');
             liveIndicator.title = `Last sync: ${exactTimeStr}\nХозяйство на связи`;
         }
 
-        // Обновление всех меток .timestamp на карточках
+        // 3. Метки карточек (.timestamp)
         if (lastUpdateRaw) {
-            const timestamps = document.querySelectorAll('.timestamp');
-            timestamps.forEach(el => {
+            document.querySelectorAll('.timestamp').forEach(el => {
                 el.innerText = `auto-updated: ${lastUpdateRaw}`;
             });
         }
 
-        // Рендер информации о билде в футере
-        const sha = versionData.sha || metricsData.sha || localStorage.getItem('home_os_sha');
-        if (sha) {
-            const shortSha = sha.slice(0, 7);
-            const buildShaElem = document.getElementById('build-sha');
-            if (buildShaElem) buildShaElem.innerText = shortSha;
-        }
+        // 4. Информация о билде в футере
+        const sha = localStorage.getItem('home_os_sha') || 'local';
+        const shortSha = sha !== 'local' ? sha.slice(0, 7) : 'drl-os';
+        const buildShaElem = document.getElementById('build-sha');
+        if (buildShaElem) buildShaElem.innerText = shortSha;
 
         const buildTimeElem = document.getElementById('build-time');
         if (buildTimeElem && globalLastDate) {
             buildTimeElem.innerText = globalLastDate.toLocaleString('ru-RU');
+        } else if (buildTimeElem) {
+            buildTimeElem.innerText = localStorage.getItem('home_os_time') || new Date().toLocaleString('ru-RU');
         }
 
-        // --- 📊 Обновление блока Digital ---
-        if (metricsData.digital) {
-            const dig = metricsData.digital;
+        // 5. Метрики Digital Core
+        if (data.digital) {
+            const dig = data.digital;
             const txCountElem = document.getElementById('tx-count');
             if (txCountElem) {
                 txCountElem.innerText = Number(dig.transactions || 0).toLocaleString('ru-RU');
             }
-            
             const digCard = document.querySelector('.card.digital');
             if (digCard) {
                 const digVals = digCard.querySelectorAll('.val');
@@ -151,10 +132,10 @@ async function loadDashboardMetrics() {
                 }
             }
         }
-        
-        // --- 🌿 Обновление блока Gardening ---
-        if (metricsData.gardening) {
-            const gar = metricsData.gardening;
+
+        // 6. Gardening
+        if (data.gardening) {
+            const gar = data.gardening;
             const garCard = document.querySelector('.card.gardening');
             if (garCard) {
                 const garVals = garCard.querySelectorAll('.val');
@@ -167,9 +148,9 @@ async function loadDashboardMetrics() {
             }
         }
 
-        // --- 🛠️ Обновление блока Repair & DIY ---
-        if (metricsData.repair) {
-            const rep = metricsData.repair;
+        // 7. Repair & DIY
+        if (data.repair) {
+            const rep = data.repair;
             const repCard = document.querySelector('.card.repair');
             if (repCard) {
                 const repVals = repCard.querySelectorAll('.val');
@@ -182,24 +163,23 @@ async function loadDashboardMetrics() {
             }
         }
 
-        // --- 🧵 Обновление блока Textile ---
-        if (metricsData.textile) {
-            const tex = metricsData.textile;
+        // 8. Textile
+        if (data.textile) {
+            const tex = data.textile;
             const texCard = document.querySelector('.card.textile');
             if (texCard) {
                 const texVals = texCard.querySelectorAll('.val');
                 if (texVals.length >= 3) {
                     texVals[0].innerText = Number(tex.projects_implemented || 0).toLocaleString('ru-RU');
                     texVals[1].innerText = Number(tex.finished_products || 0).toLocaleString('ru-RU');
-                    const consumption = tex.material_consumption_m || 0;
-                    texVals[2].innerText = `${consumption} running m`;
+                    texVals[2].innerText = `${tex.material_consumption_m || 0} running m`;
                 }
             }
         }
 
-        // --- ♻️ Обновление блока Recycling ---
-        if (metricsData.recycling) {
-            const rec = metricsData.recycling;
+        // 9. Recycling
+        if (data.recycling) {
+            const rec = data.recycling;
             const recCard = document.querySelector('.card.materials.recycling-card') || document.querySelector('.card.recycling');
             if (recCard) {
                 const badgePeriod = recCard.querySelector('.badge-period');
@@ -218,12 +198,11 @@ async function loadDashboardMetrics() {
     }
 }
 
-// Периодическое обновление относительного времени каждые 30 секунд без перезагрузки
+// Периодическое обновление относительного времени каждые 30 секунд
 setInterval(() => {
     updateLiveSyncDisplay();
 }, 30000);
 
-// Слой 2: Авто-детект новой версии через GitHub API
 const REPO = 'dmitry-lab-git/Projects';
 const BRANCH = 'main';
 
@@ -238,14 +217,14 @@ async function checkForUpdate() {
 
         if (!savedSha) {
             localStorage.setItem('home_os_sha', latestSha);
-            localStorage.setItem('home_os_time', new Date().toLocaleString());
+            localStorage.setItem('home_os_time', new Date().toLocaleString('ru-RU'));
             updateBuildUI(latestSha);
             return;
         }
 
         if (savedSha !== latestSha) {
             localStorage.setItem('home_os_sha', latestSha);
-            localStorage.setItem('home_os_time', new Date().toLocaleString());
+            localStorage.setItem('home_os_time', new Date().toLocaleString('ru-RU'));
             location.reload(true);
         }
     } catch (e) {
@@ -254,20 +233,18 @@ async function checkForUpdate() {
 }
 
 function updateBuildUI(sha) {
-    const shortSha = sha ? sha.slice(0, 7) : 'local';
-    const buildTime = localStorage.getItem('home_os_time') || new Date().toLocaleString();
+    const shortSha = sha ? sha.slice(0, 7) : 'drl-os';
+    const buildTime = localStorage.getItem('home_os_time') || new Date().toLocaleString('ru-RU');
     const buildShaElem = document.getElementById('build-sha');
     const buildTimeElem = document.getElementById('build-time');
     
-    if (buildShaElem && buildShaElem.innerText === '---') buildShaElem.innerText = shortSha;
-    if (buildTimeElem && buildTimeElem.innerText === '---') buildTimeElem.innerText = buildTime;
+    if (buildShaElem) buildShaElem.innerText = shortSha;
+    if (buildTimeElem) buildTimeElem.innerText = buildTime;
 }
 
-// Первичная инициализация при открытии страницы
 updateBuildUI(localStorage.getItem('home_os_sha'));
 loadDashboardMetrics();
 
-// Проверка обновлений кода и обновление метрик каждые 60 секунд
 setInterval(() => {
     checkForUpdate();
     loadDashboardMetrics();
@@ -275,8 +252,6 @@ setInterval(() => {
 
 checkForUpdate();
 
-// Очистка старых Service Workers
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister()));
 }
-```[cite: 6]
