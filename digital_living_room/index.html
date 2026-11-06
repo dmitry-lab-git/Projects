@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <!-- Google tag (gtag.js) - GA4 для Digital Room -->
     <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-TKQZ5NSB"></script>
@@ -18,6 +18,14 @@
     
     <!-- Подключение стилей -->
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Дополнительная гарантия корректного отступа на мобильных под фиксированную плашку */
+        @media (max-width: 768px) {
+            .container {
+                padding-top: 75px !important;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -36,7 +44,7 @@
 <div class="container" style="padding-top: 35px;">
     <header>
         <h1>🏛️ Digital Living Room — Home OS</h1>
-        <p>Центральный хаб управления и аналитики экосистемы</p>
+        <p>Ecosystem Management & Analytics Central Hub <span style="opacity: 0.7; font-size: 0.9em;">(Est. October 27, 2026)</span></p>
     </header>
 
     <div class="grid">
@@ -45,10 +53,10 @@
             <div>
                 <h2>📊 Digital (Core & Ledger)</h2>
                 <ul class="metric-list">
-                    <li><span class="metric-label">Транзакции (public.transactions):</span> <span id="tx-count" class="val">2,136</span></li>
-                    <li><span class="metric-label">Снимки балансов (acc_balance_snapshot):</span> <span class="val">146</span></li>
-                    <li><span class="metric-label">Верифицированные состояния:</span> <span class="val">6</span></li>
-                    <li><span class="metric-label">PWA Staging поток:</span> <span class="val">278</span></li>
+                    <li><span class="metric-label">Transactions (public.transactions):</span> <span id="tx-count" class="val">2,136</span></li>
+                    <li><span class="metric-label">Balance Snapshots:</span> <span class="val">146</span></li>
+                    <li><span class="metric-label">Verified States:</span> <span class="val">6</span></li>
+                    <li><span class="metric-label">PWA Staging Flow:</span> <span class="val">278</span></li>
                 </ul>
             </div>
             <div class="timestamp">auto-updated: 31.10.2026 22:45:22</div>
@@ -59,10 +67,10 @@
             <div>
                 <h2>🌿 Gardening</h2>
                 <ul class="metric-list">
-                    <li><span class="metric-label">Всего цветов:</span> <span class="val">18 шт.</span></li>
-                    <li><span class="metric-label">Цветут:</span> <span class="val" style="color: var(--accent-green);">5 шт.</span></li>
-                    <li><span class="metric-label">Авокадо:</span> <span class="val wrap">Пустило корни, стоит в воде</span></li>
-                    <li><span class="metric-label">Мониторинг полива:</span> <span class="val"><span class="status-pill">Включен</span></span></li>
+                    <li><span class="metric-label">Total Flowers:</span> <span id="gardening-total-flowers" class="val">18 units</span></li>
+                    <li><span class="metric-label">Flowering Count:</span> <span id="gardening-flowering-count" class="val" style="color: var(--accent-green);">5 units</span></li>
+                    <li><span class="metric-label">Seeds Germinating:</span> <span id="gardening-seeds-germinating" class="val">0 units</span></li>
+                    <li><span class="metric-label">Free Construction Boxes:</span> <span id="gardening-free-const-boxes" class="val">0 units</span></li>
                 </ul>
             </div>
             <div class="timestamp">auto-updated: 27.10.2026 23:45:00</div>
@@ -73,38 +81,39 @@
             <div>
                 <h2>🧵 Textile</h2>
                 <ul class="metric-list">
-                    <li><span class="metric-label">Реализовано проектов:</span> <span class="val">49</span></li>
-                    <li><span class="metric-label">Готовых изделий:</span> <span class="val">60</span></li>
-                    <li><span class="metric-label">Расход материалов:</span> <span class="val">62.08 п.м.</span></li>
+                    <li><span class="metric-label">Implemented Projects:</span> <span class="val">49</span></li>
+                    <li><span class="metric-label">Finished Products:</span> <span class="val">60</span></li>
+                    <li><span class="metric-label">Material Consumption:</span> <span class="val">62.08 running m</span></li>
                 </ul>
             </div>
             <div class="timestamp">auto-updated: 27.10.2026 23:45:00</div>
         </div>
 
-        <!-- 4. Ремонт -->
+        <!-- 4. Repair & DIY -->
         <div class="card repair">
             <div>
                 <h2>🛠️ Repair & DIY</h2>
                 <ul class="metric-list">
-                    <li><span class="metric-label">Ремонт гладильной доски</span> <span class="val"><span class="status-pill">Done</span></span></li>
-                    <li><span class="metric-label">Подсветка LED кухонной зоны</span> <span class="val"><span class="status-pill">Done</span></span></li>
-                    <li><span class="metric-label">Покраска МДФ фасада</span> <span class="val"><span class="status-pill">Done</span></span></li>
+                    <li><span class="metric-label">Total Projects:</span> <span id="repair-total-projects" class="val">3</span></li>
+                    <li><span class="metric-label">Completed Projects:</span> <span id="repair-completed-projects" class="val" style="color: var(--accent-green);">3</span></li>
+                    <li><span class="metric-label">Planning Projects:</span> <span id="repair-planning-projects" class="val">0</span></li>
+                    <li><span class="metric-label">Outsourced Count:</span> <span id="repair-outsourced-count" class="val">0</span></li>
                 </ul>
             </div>
             <div class="timestamp">auto-updated: 27.10.2026 23:45:00</div>
         </div>
 
-        <!-- 5. Учет материалов и ресурсов -->
+        <!-- 5. Material & Resource Accounting -->
         <div class="card card-full materials recycling-card">
             <div>
                 <h2>
-                    <span class="card-title-group">♻️ Учет материалов и ресурсов (Сводка по утилизации)</span>
+                    <span class="card-title-group">♻️ Material & Resource Accounting (Disposal Summary)</span>
                     <span class="badge-period">📅 October 2026</span>
                 </h2>
 
                 <div class="waste-grid">
                     <div class="waste-col" id="col-resource">
-                        <div class="waste-col-header">📦 По ресурсам</div>
+                        <div class="waste-col-header">📦 By Resource</div>
                         <table>
                             <colgroup>
                                 <col>
@@ -113,48 +122,48 @@
                             </colgroup>
                             <thead>
                                 <tr>
-                                    <th>Ресурс / Материал</th>
-                                    <th>Масса</th>
-                                    <th>Количество</th>
+                                    <th>Resource / Material</th>
+                                    <th>Mass</th>
+                                    <th>Quantity</th>
                                 </tr>
                             </thead>
                             <tbody id="by-resource">
                                 <tr>
-                                    <td>Пищевые отходы, твердая форма</td>
-                                    <td style="color: var(--accent-teal);">16.000 кг</td>
-                                    <td>6 шт.</td>
+                                    <td>Food waste, solid form</td>
+                                    <td style="color: var(--accent-teal);">16.000 kg</td>
+                                    <td>6 units</td>
                                 </tr>
                                 <tr>
-                                    <td>Прочие отходы (кухня)</td>
-                                    <td>1.800 кг</td>
-                                    <td>6 шт.</td>
+                                    <td>Other waste (kitchen)</td>
+                                    <td>1.800 kg</td>
+                                    <td>6 units</td>
                                 </tr>
                                 <tr>
-                                    <td>Пластик</td>
-                                    <td>0.900 кг</td>
-                                    <td>4 шт.</td>
+                                    <td>Plastic</td>
+                                    <td>0.900 kg</td>
+                                    <td>4 units</td>
                                 </tr>
                                 <tr>
-                                    <td>Отработанный текстиль</td>
-                                    <td>0.850 кг</td>
-                                    <td>1 шт.</td>
+                                    <td>Waste textile</td>
+                                    <td>0.850 kg</td>
+                                    <td>1 unit</td>
                                 </tr>
                                 <tr>
-                                    <td>Стекло</td>
-                                    <td>0.569 кг</td>
-                                    <td>1 шт.</td>
+                                    <td>Glass</td>
+                                    <td>0.569 kg</td>
+                                    <td>1 unit</td>
                                 </tr>
                                 <tr>
-                                    <td>Бумажные отходы</td>
-                                    <td>0.412 кг</td>
-                                    <td>2 шт.</td>
+                                    <td>Paper waste</td>
+                                    <td>0.412 kg</td>
+                                    <td>2 units</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
                     <div class="waste-col" id="col-point">
-                        <div class="waste-col-header">📍 По пунктам утилизации</div>
+                        <div class="waste-col-header">📍 By Disposal Point</div>
                         <table>
                             <colgroup>
                                 <col>
@@ -163,36 +172,36 @@
                             </colgroup>
                             <thead>
                                 <tr>
-                                    <th>Пункт утилизации</th>
-                                    <th>Масса</th>
-                                    <th>Количество</th>
+                                    <th>Disposal Point</th>
+                                    <th>Mass</th>
+                                    <th>Quantity</th>
                                 </tr>
                             </thead>
                             <tbody id="by-point">
                                 <tr>
-                                    <td>Контейнер для мусора (ТБО)</td>
-                                    <td>18.650 кг</td>
-                                    <td>13 шт.</td>
+                                    <td>Household waste container (MSW)</td>
+                                    <td>18.650 kg</td>
+                                    <td>13 units</td>
                                 </tr>
                                 <tr>
-                                    <td>Контейнер для пластика</td>
-                                    <td>0.650 кг</td>
-                                    <td>3 шт.</td>
+                                    <td>Plastic recycling container</td>
+                                    <td>0.650 kg</td>
+                                    <td>3 units</td>
                                 </tr>
                                 <tr>
-                                    <td>Пункт приема в ТРЦ Batyr mall</td>
-                                    <td>0.569 кг</td>
-                                    <td>1 шт.</td>
+                                    <td>Collection point in Batyr Mall SEC</td>
+                                    <td>0.569 kg</td>
+                                    <td>1 unit</td>
                                 </tr>
                                 <tr>
-                                    <td>Пункт приема в ТРЦ Batyr mall</td>
-                                    <td>0.412 кг</td>
-                                    <td>2 шт.</td>
+                                    <td>Collection point in Batyr Mall SEC</td>
+                                    <td>0.412 kg</td>
+                                    <td>2 units</td>
                                 </tr>
                                 <tr>
-                                    <td>Пункт приема в ТРЦ Batyr mall</td>
-                                    <td>0.250 кг</td>
-                                    <td>1 шт.</td>
+                                    <td>Collection point in Batyr Mall SEC</td>
+                                    <td>0.250 kg</td>
+                                    <td>1 unit</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -204,7 +213,8 @@
     </div>
 
     <footer>
-        <p>Digital Living Room &copy; 2026</p>
+        <p>Digital Living Room &copy; 2026 (Founded: Oct 27, 2026)</p>
+        <p>A subproject of <strong style="color: var(--accent-teal, #4cd137);">Dmitry Lab</strong> (active since July 2, 2023)</p>
         <p>
             <a href="https://github.com/dmitry-lab-git/Projects" target="_blank">GitHub</a> | 
             <a href="https://www.instagram.com/dmitry_lab_social/" target="_blank">Instagram</a> | 
