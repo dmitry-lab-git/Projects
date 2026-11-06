@@ -28,17 +28,71 @@ body {
     background-attachment: fixed;
     color: var(--text-main);
     margin: 0;
-    padding: clamp(16px, 3vw, 36px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 0;
+    display: block;
     min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Sticky OS Statusbar - единственный источник правды */
+#os-statusbar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 36px;
+    padding: 0 16px;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: monospace;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+#version-meta {
+    font-size: 9px;
+    opacity: 0.6;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+#live-indicator {
+    font-size: 11px;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #22c55e;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+    animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
 }
 
 .container {
     max-width: 1120px;
     width: 100%;
     margin: 0 auto;
+    padding: 24px 16px;
+    padding-top: 24px;
 }
 
 header {
@@ -66,7 +120,6 @@ header p {
     font-size: clamp(0.9rem, 1.2vw, 1.05rem);
 }
 
-/* Сетка дашборда */
 .grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -200,7 +253,6 @@ header p {
     box-shadow: 0 0 6px var(--accent-green);
 }
 
-/* Сетка утилизации */
 .waste-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -255,26 +307,22 @@ header p {
     white-space: nowrap;
 }
 
-/* Breakpoints */
 @media (max-width: 767px) {
     .waste-grid {
         grid-template-columns: 1fr;
         gap: 32px;
     }
-
     .waste-col th {
         font-size: 11px;
         text-transform: uppercase;
         opacity: 0.7;
         white-space: nowrap;
     }
-
     .waste-col td {
         font-size: 14px;
         line-height: 1.3;
         padding: 12px 4px;
     }
-
     #col-point {
         border-top: 1px dashed rgba(255, 255, 255, 0.12);
         padding-top: 12px;
@@ -332,45 +380,13 @@ footer a:hover {
     .card-full {
         grid-column: auto;
     }
-    body {
-        align-items: flex-start;
+}
+
+@media (max-width: 600px) {
+    #os-statusbar {
+        height: 32px;
+        padding: 0 12px;
     }
-}
-
-.live-sticky-banner {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: rgba(15, 23, 42, 0.95);
-    color: #38bdf8;
-    text-align: center;
-    padding: 8px 16px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    z-index: 1000;
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid rgba(56, 189, 248, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.live-sticky-banner .pulse-dot {
-    width: 8px;
-    height: 8px;
-    background-color: #22c55e;
-    border-radius: 50%;
-    display: inline-block;
-    box-shadow: 0 0 0 rgba(34, 197, 94, 0.4);
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    #version-meta { font-size: 8px; }
+    #live-indicator { font-size: 9px; }
 }
