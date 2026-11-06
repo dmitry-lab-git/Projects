@@ -1,10 +1,63 @@
 // Путь к вашему общему сгенерированному файлу метрик
 const METRICS_FILE = 'system_report_data.json';
 
+let globalBuildTimestamp = null;
+
+// Функция для расчета относительного времени (Heartbeat Sync) по ТЗ
+function renderLiveSync(timestampStr) {
+    const liveIndicator = document.getElementById('live-indicator');
+    const textElem = document.getElementById('live-sync-text');
+    if (!textElem) return;
+
+    if (!timestampStr) {
+        textElem.innerText = 'Living · online';
+        return;
+    }
+
+    // Установка точного времени в тултип по ТЗ
+    if (liveIndicator) {
+        liveIndicator.title = `${timestampStr} — Хозяйство на связи`;
+    }
+
+    // Парсинг даты (формат ДД.ММ.ГГГГ ЧЧ:ММ:СС)
+    try {
+        const parts = timestampStr.split(/[\.\s:]/);
+        if (parts.length >= 6) {
+            const day = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1;
+            const year = parseInt(parts[2], 10);
+            const hour = parseInt(parts[3], 10);
+            const minute = parseInt(parts[4], 10);
+            const second = parseInt(parts[5], 10);
+
+            const updateDate = new Date(year, month, day, hour, minute, second);
+            const diffSec = Math.floor((new Date() - updateDate) / 1000);
+
+            let relativeTime = 'just now';
+            if (diffSec > 60 && diffSec < 3600) {
+                const mins = Math.floor(diffSec / 60);
+                relativeTime = `${mins}m ago`;
+            } else if (diffSec >= 3600 && diffSec < 86400) {
+                const hours = Math.floor(diffSec / 3600);
+                relativeTime = `${hours}h ago`;
+            } else if (diffSec >= 86400) {
+                const days = Math.floor(diffSec / 86400);
+                relativeTime = `${days}d ago`;
+            }
+
+            textElem.innerText = `Living · ${relativeTime}`;
+        } else {
+            textElem.innerText = `Living · ${timestampStr}`;
+        }
+    } catch (e) {
+        textElem.innerText = `Living · ${timestampStr}`;
+    }
+}
+
 // Слой 1 + Слой 3: Загрузка всех динамических метрик из system_report_data.json
 async function loadDashboardMetrics() {
     try {
-        const res = await fetch(`system_report_data.json?_v=${Date.now()}`, {
+        const res = await fetch(`${METRICS_FILE}?t=${Date.now()}`, {
             cache: 'no-store',
             headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
         });
@@ -12,13 +65,13 @@ async function loadDashboardMetrics() {
         if (res.ok) {
             const data = await res.json();
             
-            // Заполнение Live Sync времени
-            const liveTimeElem = document.getElementById('live-sync-time');
-            if (liveTimeElem && data.updated_at) {
-                liveTimeElem.innerText = data.updated_at;
+            // Сохранение таймера для периодического обновления относительного времени
+            if (data.updated_at) {
+                globalBuildTimestamp = data.updated_at;
+                renderLiveSync(globalBuildTimestamp);
             }
 
-            // Заполнение версии (VER-004 · UVR-042)
+            // Заполнение версии (VER-004 · UVR-044) в липком статусбаре
             if (data.version) {
                 const verMetaElem = document.getElementById('version-meta');
                 if (verMetaElem) {
@@ -136,6 +189,13 @@ async function loadDashboardMetrics() {
     }
 }
 
+// Периодическое обновление относительного времени каждые 30 секунд без перезагрузки
+setInterval(() => {
+    if (globalBuildTimestamp) {
+        renderLiveSync(globalBuildTimestamp);
+    }
+}, 30000);
+
 // Слой 2: Авто-детект новой версии через GitHub API
 const REPO = 'dmitry-lab-git/Projects';
 const BRANCH = 'main';
@@ -192,3 +252,4 @@ checkForUpdate();
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister()));
 }
+```[cite: 6]

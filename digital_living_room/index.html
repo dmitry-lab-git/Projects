@@ -17,82 +17,117 @@
     <link rel="stylesheet" href="styles.css">
     <style>
         body {
+            margin: 0;
             overflow-x: hidden;
             max-width: 100vw;
             box-sizing: border-box;
-            position: relative;
-            margin: 0;
-            padding: 0;
+            background-color: #0b0f19;
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
-        .container {
-            max-width: 100vw;
+
+        /* Единый липкий статусбар по ТЗ */
+        #os-statusbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 36px;
+            padding: 0 16px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-family: monospace;
             box-sizing: border-box;
-            padding-top: 45px;
+            width: 100%;
         }
-        header {
-            margin-top: 42px;
-        }
-        header h1 {
-            font-size: 1.6rem;
-        }
-        /* Бейдж версии слева */
+
         #version-meta {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            font: 9px monospace;
-            opacity: 0.45;
+            font-size: 9px;
+            opacity: 0.5;
+            letter-spacing: 0.05em;
+            position: static;
             white-space: nowrap;
-            z-index: 10;
-            pointer-events: none;
-            color: #5a6a85;
         }
-        /* Live-индикатор справа */
+
         #live-indicator {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            text-align: right;
-            line-height: 1.2;
             font-size: 11px;
-            z-index: 10;
+            text-align: right;
+            position: static;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
+
+        /* Зеленый пульсирующий индикатор */
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-top: 24px;
+            box-sizing: border-box;
+        }
+
         @media (max-width: 600px) {
+            #os-statusbar {
+                height: 32px;
+                padding: 0 12px;
+            }
             #version-meta {
                 font-size: 8px;
-                top: 8px;
-                left: 8px;
             }
             #live-indicator {
                 font-size: 9px;
-                top: 8px;
-                right: 8px;
-            }
-            header {
-                margin-top: 42px;
-            }
-            header h1 {
-                font-size: 1.6rem;
             }
             .container {
-                padding-top: 50px !important;
+                padding-top: 16px;
             }
         }
     </style>
 </head>
 <body>
 
-<!-- Элементы в абсолютных позициях по углам -->
-<div id="version-meta">VER-... · UVR-...</div>
-<div id="live-indicator">
-    <span class="pulse-dot"></span>
-    <span>Live Sync: last update <strong id="live-sync-time">---</strong></span>
+<!-- Единый Sticky статусбар -->
+<div id="os-statusbar">
+    <div id="version-meta">VER-004 · UVR-044</div>
+    <div id="live-indicator" title="Хозяйство на связи">
+        <span class="live-dot"></span>
+        <span id="live-sync-text">Living · connecting...</span>
+    </div>
 </div>
 
 <div class="container">
-    <header>
-        <h1>🏛️ Digital Living Room — Home OS</h1>
-        <p>Ecosystem Management & Analytics Central Hub <span style="opacity: 0.7; font-size: 0.9em;">(Est. October 27, 2026)</span></p>
+    <header style="margin-bottom: 24px;">
+        <h1 style="font-size: 1.6rem; margin: 0 0 4px 0;">🏛️ Digital Living Room — Home OS</h1>
+        <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">Ecosystem Management & Analytics Central Hub <span style="opacity: 0.7;">(Est. October 27, 2026)</span></p>
     </header>
 
     <div class="grid">
@@ -101,13 +136,13 @@
             <div>
                 <h2>📊 Digital (Core & Ledger)</h2>
                 <ul class="metric-list">
-                    <li><span class="metric-label">Transactions (public.transactions):</span> <span id="tx-count" class="val">2,136</span></li>
-                    <li><span class="metric-label">Balance Snapshots:</span> <span class="val">146</span></li>
-                    <li><span class="metric-label">Verified States:</span> <span class="val">6</span></li>
-                    <li><span class="metric-label">PWA Staging Flow:</span> <span class="val">278</span></li>
+                    <li><span class="metric-label">Transactions (public.transactions):</span> <span id="tx-count" class="val">2,175</span></li>
+                    <li><span class="metric-label">Balance Snapshots:</span> <span class="val">156</span></li>
+                    <li><span class="metric-label">Verified States:</span> <span class="val">8</span></li>
+                    <li><span class="metric-label">PWA Staging Flow:</span> <span class="val">320</span></li>
                 </ul>
             </div>
-            <div class="timestamp">auto-updated: 31.10.2026 22:45:22</div>
+            <div class="timestamp">auto-updated: 06.11.2026 23:30:27</div>
         </div>
 
         <!-- 2. Gardening -->
@@ -117,8 +152,8 @@
                 <ul class="metric-list">
                     <li><span class="metric-label">Total Flowers:</span> <span id="gardening-total-flowers" class="val">18 units</span></li>
                     <li><span class="metric-label">Flowering Count:</span> <span id="gardening-flowering-count" class="val" style="color: var(--accent-green);">5 units</span></li>
-                    <li><span class="metric-label">Seeds Germinating:</span> <span id="gardening-seeds-germinating" class="val">0 units</span></li>
-                    <li><span class="metric-label">Free Construction Boxes:</span> <span id="gardening-free-const-boxes" class="val">0 units</span></li>
+                    <li><span class="metric-label">Seeds Germinating:</span> <span id="gardening-seeds-germinating" class="val">2 units</span></li>
+                    <li><span class="metric-label">Free Construction Boxes:</span> <span id="gardening-free-const-boxes" class="val">1 unit</span></li>
                 </ul>
             </div>
             <div class="timestamp" id="gardening-timestamp">auto-updated: 06.11.2026 23:30:27</div>
@@ -129,12 +164,12 @@
             <div>
                 <h2>🧵 Textile</h2>
                 <ul class="metric-list">
-                    <li><span class="metric-label">Implemented Projects:</span> <span class="val">49</span></li>
-                    <li><span class="metric-label">Finished Products:</span> <span class="val">60</span></li>
-                    <li><span class="metric-label">Material Consumption:</span> <span class="val">62.08 running m</span></li>
+                    <li><span class="metric-label">Implemented Projects:</span> <span class="val">52</span></li>
+                    <li><span class="metric-label">Finished Products:</span> <span class="val">66</span></li>
+                    <li><span class="metric-label">Material Consumption:</span> <span class="val">82.07 running m</span></li>
                 </ul>
             </div>
-            <div class="timestamp">auto-updated: 27.10.2026 23:45:00</div>
+            <div class="timestamp">auto-updated: 06.11.2026 23:30:27</div>
         </div>
 
         <!-- 4. Repair & DIY -->
@@ -142,10 +177,10 @@
             <div>
                 <h2>🛠️ Repair & DIY</h2>
                 <ul class="metric-list">
-                    <li><span class="metric-label">Total Projects:</span> <span id="repair-total-projects" class="val">3</span></li>
-                    <li><span class="metric-label">Completed Projects:</span> <span id="repair-completed-projects" class="val" style="color: var(--accent-green);">3</span></li>
-                    <li><span class="metric-label">Planning Projects:</span> <span id="repair-planning-projects" class="val">0</span></li>
-                    <li><span class="metric-label">Outsourced Count:</span> <span id="repair-outsourced-count" class="val">0</span></li>
+                    <li><span class="metric-label">Total Projects:</span> <span id="repair-total-projects" class="val">23</span></li>
+                    <li><span class="metric-label">Completed Projects:</span> <span id="repair-completed-projects" class="val" style="color: var(--accent-green);">22</span></li>
+                    <li><span class="metric-label">Planning Projects:</span> <span id="repair-planning-projects" class="val">1</span></li>
+                    <li><span class="metric-label">Outsourced Count:</span> <span id="repair-outsourced-count" class="val">8</span></li>
                 </ul>
             </div>
             <div class="timestamp" id="repair-timestamp">auto-updated: 06.11.2026 23:30:27</div>
@@ -156,7 +191,7 @@
             <div>
                 <h2>
                     <span class="card-title-group">♻️ Material & Resource Accounting (Disposal Summary)</span>
-                    <span class="badge-period">📅 October 2026</span>
+                    <span class="badge-period">📅 November 2026</span>
                 </h2>
 
                 <div class="waste-grid">
@@ -237,7 +272,7 @@
                                     <td>Collection point in Batyr Mall SEC</td>
                                     <td>0.412 kg</td>
                                     <td>2 units</td>
-                                }
+                                </tr>
                                 <tr>
                                     <td>Collection point in Batyr Mall SEC</td>
                                     <td>0.250 kg</td>
@@ -248,7 +283,7 @@
                     </div>
                 </div>
             </div>
-            <div class="timestamp">auto-updated: 28.10.2026 01:00:00</div>
+            <div class="timestamp">auto-updated: 06.11.2026 23:30:27</div>
         </div>
     </div>
 
@@ -267,6 +302,6 @@
 </div>
 
 <script src="script.js"></script>
-
 </body>
 </html>
+```[cite: 6]
