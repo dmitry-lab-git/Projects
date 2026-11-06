@@ -169,4 +169,3 @@ loadGitHubBuild();
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister()));
 }
-```[cite: 8, 14]
