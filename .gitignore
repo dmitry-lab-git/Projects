@@ -52,3 +52,6 @@ rclone.exe
 !db/ledger/**
 !db/dump.sh
 create_issues*.sh
+.pwa_metrics_last_run
+.readme_metrics_last_run
+.states/

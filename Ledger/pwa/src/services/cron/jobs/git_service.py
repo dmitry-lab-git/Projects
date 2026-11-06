@@ -34,8 +34,17 @@ def run_git_push(files_to_add: list, commit_message: str):
                 subprocess.run(["git", "push", "origin", "main"], check=True, timeout=60)
                 logger.info(f"CRON Git: {existing} -> OK")
                 return True
-            except subprocess.CalledProcessError:
+            except subprocess.CalledProcessError as e:
+                logger.warning(f"CRON Git push неудачен (попытка {attempt + 1}): {e}")
+                
+                # Обработка non-fast-forward / удаленных изменений перед ретраем
+                rebase_res = subprocess.run(["git", "pull", "--rebase", "origin", "main"], capture_output=True, text=True)
+                if rebase_res.returncode != 0:
+                    logger.warning(f"CRON Git pull --rebase warning: {rebase_res.stderr}")
+                    subprocess.run(["git", "rebase", "--abort"], capture_output=True)
+                
                 time.sleep(5 * (attempt + 1))
+                
         return False
     except Exception as e:
         logger.error(f"CRON Git Ошибка: {e}")

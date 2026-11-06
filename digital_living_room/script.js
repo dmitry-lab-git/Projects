@@ -18,6 +18,16 @@ async function loadDashboardMetrics() {
             if (liveTimeElem && data.updated_at) {
                 liveTimeElem.innerText = data.updated_at;
             }
+
+            // --- 🏷️ Обновление бейджа версии из БД ---
+            if (data.version) {
+                const verMetaElem = document.getElementById('version-meta');
+                if (verMetaElem) {
+                    const verStr = data.version.ver || 'VER-???';
+                    const uvrStr = data.version.uvr || 'UVR-???';
+                    verMetaElem.innerText = `${verStr} · ${uvrStr}`;
+                }
+            }
             
             // --- 📊 Обновление блока Digital ---
             if (data.digital) {
