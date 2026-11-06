@@ -15,41 +15,41 @@
         "disposition_records": [
             {
                 "interval_start": "2026-11-01",
-                "resource_name": "Прочие отходы (кухня)",
-                "resource_type": "Неперерабатываемые отходы",
-                "unit": "кг",
+                "resource_name": "Other waste (kitchen)",
+                "resource_type": "Non-recyclable",
+                "unit": "kg",
                 "device_name": "DEXP BM-10",
                 "uncertainty": 0.05,
                 "quantity": 0.4,
                 "utilized_at": "2026-11-04 00:00:00",
-                "disposal_point_name": "Контейнер для мусора (ТБО)",
-                "disposal_point_type": "Захоронение на ТБО"
+                "disposal_point_name": "Municipal waste container (MSW)",
+                "disposal_point_type": "MSW landfill"
             },
             {
                 "interval_start": "2026-11-01",
-                "resource_name": "Пищевые отходы, твердая форма",
-                "resource_type": "Органика",
-                "unit": "кг",
+                "resource_name": "Food waste, solid",
+                "resource_type": "Organic",
+                "unit": "kg",
                 "device_name": "DEXP BM-10",
                 "uncertainty": 0.05,
                 "quantity": 2.35,
                 "utilized_at": "2026-11-04 00:00:00",
-                "disposal_point_name": "Контейнер для мусора (ТБО)",
-                "disposal_point_type": "Захоронение на ТБО"
+                "disposal_point_name": "Municipal waste container (MSW)",
+                "disposal_point_type": "MSW landfill"
             },
             {
                 "interval_start": "2026-11-01",
-                "resource_name": "Пластик",
-                "resource_type": "Вторичное сырье",
-                "unit": "кг",
+                "resource_name": "Plastic",
+                "resource_type": "Recyclable",
+                "unit": "kg",
                 "device_name": "DEXP BM-10",
                 "uncertainty": 0.05,
                 "quantity": 0.15,
                 "utilized_at": "2026-11-04 00:00:00",
-                "disposal_point_name": "Контейнер для пластика",
-                "disposal_point_type": "Сбор пластика"
+                "disposal_point_name": "Plastic container",
+                "disposal_point_type": "Plastic collection"
             }
         ]
     },
-    "updated_at": "05.11.2026 23:41:09"
+    "updated_at": "06.11.2026 18:59:37"
 }
