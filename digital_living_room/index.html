@@ -37,9 +37,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            min-height: 36px;
-            padding: 4px 16px;
-            background: rgba(15, 23, 42, 0.9);
+            min-height: 38px;
+            padding: 0 16px;
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -50,7 +50,7 @@
 
         #version-meta {
             font-size: 9px;
-            opacity: 0.6;
+            opacity: 0.65;
             letter-spacing: 0.05em;
             white-space: nowrap;
         }
@@ -61,6 +61,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            white-space: nowrap;
         }
 
         .live-dot {
@@ -108,16 +109,14 @@
             box-sizing: border-box;
         }
 
+        /* Мобильный адаптив: разведение версии и синхронизации по углам с достаточным отступом */
         @media (max-width: 650px) {
             #os-statusbar {
-                flex-direction: column;
-                align-items: flex-start;
-                padding: 6px 12px;
-                gap: 2px;
-                height: auto;
+                padding: 6px 14px;
+                gap: 16px;
             }
-            #version-meta { font-size: 8px; }
-            #live-indicator { font-size: 9px; text-align: left; }
+            #version-meta { font-size: 8.5px; }
+            #live-indicator { font-size: 9.5px; }
             .container { padding-top: 16px; }
         }
     </style>
@@ -153,7 +152,7 @@
             </div>
             <div class="card-footer-meta">
                 <span class="live-dot"></span>
-                <span class="timestamp">auto-updated: --</span>
+                <span>auto-updated: <span class="timestamp">--</span></span>
             </div>
         </div>
 
@@ -170,7 +169,7 @@
             </div>
             <div class="card-footer-meta">
                 <span class="live-dot"></span>
-                <span class="timestamp">auto-updated: --</span>
+                <span>auto-updated: <span class="timestamp">--</span></span>
             </div>
         </div>
 
@@ -186,7 +185,7 @@
             </div>
             <div class="card-footer-meta">
                 <span class="live-dot"></span>
-                <span class="timestamp">auto-updated: --</span>
+                <span>auto-updated: <span class="timestamp">--</span></span>
             </div>
         </div>
 
@@ -203,7 +202,7 @@
             </div>
             <div class="card-footer-meta">
                 <span class="live-dot"></span>
-                <span class="timestamp">auto-updated: --</span>
+                <span>auto-updated: <span class="timestamp">--</span></span>
             </div>
         </div>
 
@@ -306,7 +305,7 @@
             </div>
             <div class="card-footer-meta">
                 <span class="live-dot"></span>
-                <span class="timestamp">auto-updated: --</span>
+                <span>auto-updated: <span class="timestamp">--</span></span>
             </div>
         </div>
     </div>
@@ -334,4 +333,4 @@
 
 <script src="script.js"></script>
 </body>
-</html>
+</html>[cite: 14]
